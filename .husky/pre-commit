@@ -1,1 +1,1 @@
-pnpm test
+pnpm pretty-quick --staged
