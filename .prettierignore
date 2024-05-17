@@ -1,1 +1,11 @@
-dist
+*.min.js
+*.min.css
+layouts.ts
+quotes/*
+chartjs-plugin-*.js
+sound/*
+node_modules
+css/balloon.css
+_list.json
+backend/dist
+frontend/dist
