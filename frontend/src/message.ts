@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const socket = new WebSocket(import.meta.env.VITE_WSS_ADDR || 'ws://localhost:8000');
+const socket = new WebSocket(import.meta.env.VITE_WSS_ADDR || 'wss://message-app.rennernet.com');
 const userId = Cookies.get('userId');
 
 socket.addEventListener('open', () => {
