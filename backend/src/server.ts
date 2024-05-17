@@ -16,7 +16,10 @@ type Message = {
     timestamp?: string;
 };
 
-await db.run('CREATE TABLE IF NOT EXISTS messages (userId TEXT, message TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)')
+await db
+    .run(
+        'CREATE TABLE IF NOT EXISTS messages (userId TEXT, message TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)',
+    )
     .catch((err) => {
         if (err) {
             console.error(err.message);
@@ -24,16 +27,16 @@ await db.run('CREATE TABLE IF NOT EXISTS messages (userId TEXT, message TEXT, ti
         }
     });
 
-let lastMessages = await db.all<Message[]>('SELECT * FROM messages LIMIT 50')
-    .catch((err) => {
+const lastMessages =
+    (await db.all<Message[]>('SELECT * FROM messages LIMIT 50').catch((err) => {
         if (err) {
             console.error(err.message);
         }
-    }) || [];
+    })) || [];
 
 app.use(cors());
 
-app.ws('/', (ws, _) => {
+app.ws('/', (ws) => {
     ws.on('message', (msg: string) => {
         if (msg === 'get') {
             ws.send(JSON.stringify(lastMessages));
@@ -58,18 +61,20 @@ app.ws('/', (ws, _) => {
             message.timestamp = new Date().toISOString();
         }
 
-        db.run('INSERT INTO messages VALUES (?, ?, ?)', [message.userId, message.message, message.timestamp]).catch((err) => {
-            if (err) {
-                console.error(err.message);
-            }
-        });
+        db.run('INSERT INTO messages VALUES (?, ?, ?)', [message.userId, message.message, message.timestamp]).catch(
+            (err) => {
+                if (err) {
+                    console.error(err.message);
+                }
+            },
+        );
 
         if (lastMessages.length >= 50) {
             lastMessages.shift();
         }
         lastMessages.push(message);
 
-        let stringifiedMessage = JSON.stringify(lastMessages);
+        const stringifiedMessage = JSON.stringify(lastMessages);
         wss.clients.forEach((client: WebSocket) => {
             if (client.readyState === 1) {
                 client.send(stringifiedMessage);

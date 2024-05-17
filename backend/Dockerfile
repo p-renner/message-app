@@ -1,19 +1,24 @@
-FROM --platform=linux/amd64 node:18-bullseye-slim
+FROM --platform=linux/amd64 node:18-bullseye-slim as builder
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+RUN npm run build
+
+FROM --platform=linux/amd64 node:18-bullseye-slim as server
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
-RUN npm install -g pnpm
 ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY dist/server.js ./server.js
-COPY package.json ./package.json
-COPY pnpm-lock.yaml ./pnpm-lock.yaml
-COPY chat.db ./chat.db
+COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/dist/ ./dist/
 
 RUN chown -R node:node /app
 
 USER node
-RUN pnpm install --frozen-lockfile --prod
+RUN npm ci --only=production
 
 EXPOSE 8000
-CMD ["dumb-init", "node", "server.js"]
+CMD ["dumb-init", "node", "dist/server.js"]
