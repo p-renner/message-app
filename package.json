@@ -1,0 +1,16 @@
+{
+	"devDependencies": {
+		"@eslint/js": "^9.2.0",
+		"eslint": "^9.2.0",
+		"globals": "^15.2.0",
+		"husky": "^9.0.11",
+		"pretty-quick": "^4.0.0",
+		"typescript-eslint": "^7.9.0"
+	},
+	"scripts": {
+		"prepare": "husky",
+		"lint": "npm run lint-be && npm run lint-fe",
+		"lint-be": "eslint \"./backend/**/*.ts\"",
+		"lint-fe": "eslint \"./frontend/**/*.ts\""
+	}
+}

@@ -3,31 +3,31 @@ import Cookies from 'js-cookie';
 const socket = new WebSocket(import.meta.env.VITE_WSS_ADDR || 'ws://localhost:8000');
 const userId = Cookies.get('userId');
 
-socket.addEventListener("open", () => {
-  socket.send('get');
+socket.addEventListener('open', () => {
+    socket.send('get');
 });
 
-socket.addEventListener("message", (event) => {
-  let container = document.querySelector<HTMLDivElement>('#messages')!;
+socket.addEventListener('message', (event) => {
+    const container = document.querySelector<HTMLDivElement>('#messages')!;
 
-  if (!container) {
-    return;
-  }
+    if (!container) {
+        return;
+    }
 
-  container.innerHTML = formatMessage(JSON.parse(event.data));
+    container.innerHTML = formatMessage(JSON.parse(event.data));
 });
 
 export function sendMessage(input: HTMLInputElement, button: HTMLButtonElement) {
-  button.addEventListener('click', () => {
-    if (!input.value) {
-      return;
-    }
+    button.addEventListener('click', () => {
+        if (!input.value) {
+            return;
+        }
 
-    socket.send(JSON.stringify({ userId, message: input.value }));
-    input.value = '';
-  });
+        socket.send(JSON.stringify({ userId, message: input.value }));
+        input.value = '';
+    });
 }
 
-function formatMessage(messages: { userId: string, message: string }[]) {
-  return messages.map(({ userId, message }) => userId + ': ' + message).join('<br>');
+function formatMessage(messages: { userId: string; message: string }[]) {
+    return messages.map(({ userId, message }) => userId + ': ' + message).join('<br>');
 }

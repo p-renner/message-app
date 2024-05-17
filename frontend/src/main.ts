@@ -1,34 +1,33 @@
-import './index.css'
-import { sendMessage } from './message.ts'
-import Cookies from 'js-cookie'
+import './index.css';
+import { sendMessage } from './message.ts';
+import Cookies from 'js-cookie';
 
 if (!Cookies.get('userId')) {
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+    document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <div class="text-center space-y-8 p-4 text-white">
       <h1 class="text-2xl md:text-4xl">Enter your name</h1>
 
       <input class="border-2 border-black bg-gray-800" type="text" id="name" />
       <button id="send" type="button">Send</button>
     </div>
-  `
+  `;
 
-  let nameInput = document.querySelector<HTMLInputElement>('#name')!;
-  let sendButton = document.querySelector<HTMLButtonElement>('#send')!;
+    const nameInput = document.querySelector<HTMLInputElement>('#name')!;
+    const sendButton = document.querySelector<HTMLButtonElement>('#send')!;
 
-  sendButton.addEventListener('click', () => {
-    Cookies.set('userId', nameInput.value)
-    window.location.reload()
-  })
+    sendButton.addEventListener('click', () => {
+        Cookies.set('userId', nameInput.value);
+        window.location.reload();
+    });
 
-  nameInput.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      sendButton.click();
-    }
-  });
-
+    nameInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendButton.click();
+        }
+    });
 } else {
-  document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+    document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="text-center space-y-8 p-4 text-white">
     <h1 class="text-2xl md:text-4xl">Message App</h1>
 
@@ -37,16 +36,16 @@ if (!Cookies.get('userId')) {
     <input class="border-2 border-black bg-gray-800" type="text" id="message" />
     <button id="send" type="button">Send</button>
   </div>
-`
-  sendMessage(
-    document.querySelector<HTMLInputElement>('#message')!,
-    document.querySelector<HTMLButtonElement>('#send')!,
-  )
+`;
+    sendMessage(
+        document.querySelector<HTMLInputElement>('#message')!,
+        document.querySelector<HTMLButtonElement>('#send')!,
+    );
 
-  document.querySelector<HTMLButtonElement>('#message')!.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      document.querySelector<HTMLButtonElement>('#send')!.click();
-    }
-  });
+    document.querySelector<HTMLButtonElement>('#message')!.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            document.querySelector<HTMLButtonElement>('#send')!.click();
+        }
+    });
 }
