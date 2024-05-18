@@ -2,6 +2,7 @@ FROM --platform=linux/amd64 node:18-bullseye-slim as builder
 WORKDIR /app
 
 COPY . .
+COPY ../shared/ ../shared/
 
 RUN npm install
 RUN npm run build
