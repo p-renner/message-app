@@ -37,7 +37,7 @@ jobs:
               with:
                   context: .
                   platforms: ${{ env.PLATFORMS }}
-                  file: ./Dockerfile
+                  file: ./backend/Dockerfile
                   push: true
                   tags: ${{ env.REPO }}:latest,${{ steps.bemeta.outputs.tags }}
                   labels: ${{ steps.bemeta.outputs.labels }}
