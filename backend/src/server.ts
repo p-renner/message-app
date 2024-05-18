@@ -1,7 +1,7 @@
 import express from 'express';
 import expressWs from 'express-ws';
 import cors from 'cors';
-import { getMessages, insertMessage } from './messages';
+import { getMessages, insertMessage } from './messages.js';
 
 const wsInstance = expressWs(express());
 const wss = wsInstance.getWss();
@@ -18,11 +18,11 @@ wss.on('connection', (ws: WebSocket) => {
 });
 
 app.ws('/', (ws) => {
-    ws.on('message', (msg: string) => {
+    ws.on('message', (msg) => {
         let message: SharedTypes.Message;
 
         try {
-            message = JSON.parse(msg);
+            message = JSON.parse(msg.toString());
         } catch (e) {
             console.error('Invalid JSON:', msg, e);
             return;
@@ -36,9 +36,9 @@ app.ws('/', (ws) => {
         lastMessages.push(message);
 
         const stringifiedMessage = JSON.stringify(lastMessages);
-        wss.clients.forEach((client: WebSocket) => {
-            if (client.readyState === 1) {
-                client.send(stringifiedMessage);
+        wss.clients.forEach((value) => {
+            if (value.readyState === 1) {
+                value.send(stringifiedMessage);
             }
         });
     });

@@ -7,11 +7,7 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
         "outDir": "dist",
-
-        /* Bundler mode */
-        "moduleResolution": "bundler",
-        "resolveJsonModule": true,
-        "isolatedModules": true,
+        "moduleResolution": "node",
 
         /* Linting */
         "strict": true,
