@@ -18,7 +18,7 @@ wss.on('connection', (ws: WebSocket) => {
 });
 
 app.ws('/', (ws) => {
-    ws.on('message', (msg) => {
+    ws.on('message', async (msg) => {
         let message: SharedTypes.Message;
 
         try {
@@ -28,7 +28,13 @@ app.ws('/', (ws) => {
             return;
         }
 
-        insertMessage(message);
+        const res = await insertMessage(message);
+        if (!res || !res.lastID) {
+            console.error('Error inserting message:', message);
+            return;
+        }
+
+        message.id = res.lastID;
 
         if (lastMessages.length >= 50) {
             lastMessages.shift();
