@@ -1,3 +1,4 @@
+import { NetworkError, EmptyMessageError } from './lib/errors';
 type messageHandler = (messages: SharedTypes.Message[]) => void;
 
 export default class Socket {
@@ -12,11 +13,11 @@ export default class Socket {
 
     sendMessage(message: string, userId: string): void | never {
         if (!this.socket || this.socket.readyState !== 1) {
-            throw new Error('Socket is not connected');
+            throw new NetworkError();
         }
 
         if (!message || message === '') {
-            throw new Error('Message cannot be empty');
+            throw new EmptyMessageError();
         }
 
         this.socket.send(JSON.stringify({ userId: userId, message } as SharedTypes.Message));

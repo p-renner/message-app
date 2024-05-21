@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
-function MessageForm({ sendMessage }: { sendMessage: (message: string) => void }) {
+interface MessageFormProps {
+    onSend: (message: string) => void;
+}
+
+function MessageForm(props: MessageFormProps) {
+    const { onSend } = props;
     const [message, setMessage] = useState<string>('');
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -9,7 +14,7 @@ function MessageForm({ sendMessage }: { sendMessage: (message: string) => void }
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        sendMessage(message);
+        onSend(message);
         setMessage('');
     };
 
