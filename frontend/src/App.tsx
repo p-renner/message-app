@@ -28,7 +28,7 @@ function App() {
     }
 
     return (
-        <div id="container" className="relative flex flex-col text-center p-4 text-white h-dvh">
+        <div id="container" className="relative flex flex-col text-center p-4 h-dvh max-w-2xl mx-auto">
             <h1 className="text-2xl md:text-4xl">Message App</h1>
 
             <MessageComponent userId={userId} sendNotification={notify} />

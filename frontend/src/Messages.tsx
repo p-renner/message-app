@@ -1,24 +1,20 @@
 import { useEffect, useRef } from 'react';
+import { ScrollArea } from './components/ui/scroll-area';
 
 function Messages({ messages }: { messages: SharedTypes.Message[] }) {
-    const ulRef = useRef<HTMLUListElement>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (ulRef.current) {
-            ulRef.current.scrollTop = ulRef.current.scrollHeight;
-        }
+        if (!chatContainerRef.current) return;
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }, [messages]);
 
     return (
-        <ul
-            id="messages"
-            className="flex-1 flex flex-col justify-end bg-gray-800 px-4 py-2 my-4 border-2 w-full max-w-2xl mx-auto text-left break-words overflow-y-scroll"
-            ref={ulRef}
-        >
+        <ScrollArea className="flex-1 h-full px-4 py-2 my-4 border-2 bg-gray-100 border-gray-200 rounded-md dark:bg-gray-800 dark:border-gray-700 text-left break-words">
             {messages.map(({ id, userId, message }) => (
-                <li key={id}>{userId + ': ' + message}</li>
+                <div key={id}>{userId + ': ' + message}</div>
             ))}
-        </ul>
+        </ScrollArea>
     );
 }
 
