@@ -1,22 +1,11 @@
-import Cookies from 'js-cookie';
-import Socket from './socket';
 import { useState } from 'react';
 
-function sendMessage(message: string) {
-    if (!Socket || Socket.readyState !== 1) {
-        // addError(container, 'Not connected to server');
-        return;
-    }
-
-    if (!message || message === '') {
-        // addError(container, 'Please enter a message');
-        return;
-    }
-
-    Socket.send(JSON.stringify({ userId: Cookies.get('userId'), message } as SharedTypes.Message));
+interface MessageFormProps {
+    onSend: (message: string) => void;
 }
 
-function MessageForm() {
+function MessageForm(props: MessageFormProps) {
+    const { onSend } = props;
     const [message, setMessage] = useState<string>('');
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +14,7 @@ function MessageForm() {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        sendMessage(message);
+        onSend(message);
         setMessage('');
     };
 

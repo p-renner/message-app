@@ -12,7 +12,7 @@ function Messages({ messages }: { messages: SharedTypes.Message[] }) {
     return (
         <ul
             id="messages"
-            className="bg-gray-800 px-4 py-2 my-4 border-2 h-[80vh] w-full max-w-2xl mx-auto text-left break-words overflow-y-scroll"
+            className="flex-1 flex flex-col justify-end bg-gray-800 px-4 py-2 my-4 border-2 w-full max-w-2xl mx-auto text-left break-words overflow-y-scroll"
             ref={ulRef}
         >
             {messages.map(({ id, userId, message }) => (
