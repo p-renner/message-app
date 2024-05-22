@@ -3,16 +3,15 @@ type messageHandler = (messages: SharedTypes.Message[]) => void;
 
 export default class Socket {
     private socket: WebSocket;
+    private messageHandler: messageHandler;
 
-    constructor(messageHandler: messageHandler) {
-        this.socket = new WebSocket(import.meta.env.VITE_WSS_ADDR || 'wss://message-app.rennernet.com');
-        this.socket.addEventListener('message', (event) => {
-            messageHandler(JSON.parse(event.data) as SharedTypes.Message[]);
-        });
+    constructor(url: string, messageHandler: messageHandler) {
+        this.socket = this.init(url);
+        this.messageHandler = messageHandler;
     }
 
     sendMessage(message: string, userId: string): void | never {
-        if (!this.socket || this.socket.readyState !== 1) {
+        if (!this.isConnected() || !this.socket) {
             throw new NetworkError();
         }
 
@@ -23,7 +22,32 @@ export default class Socket {
         this.socket.send(JSON.stringify({ userId: userId, message } as SharedTypes.Message));
     }
 
+    init(url: string): WebSocket {
+        this.socket = new WebSocket(url);
+
+        this.socket.onopen = () => {
+            console.log('Connection established');
+        };
+
+        this.socket.onmessage = (event: MessageEvent) => {
+            if (!this.messageHandler) {
+                return;
+            }
+            this.messageHandler(JSON.parse(event.data) as SharedTypes.Message[]);
+        };
+
+        this.socket.onerror = (error: Event) => {
+            console.error('WebSocket error observed:', error);
+        };
+
+        return this.socket;
+    }
+
     disconnect(): void {
         this.socket.close();
+    }
+
+    isConnected(): boolean {
+        return this.socket.readyState === WebSocket.OPEN;
     }
 }
