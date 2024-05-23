@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ChevronRightIcon } from 'lucide-react';
 
 const formSchema = z.object({
     message: z.string().min(1, { message: 'Message cannot be empty' }).max(255, { message: 'Message is too long' }),
@@ -45,7 +46,9 @@ function MessageForm(props: MessageFormProps) {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Send</Button>
+                    <Button type="submit" variant="outline">
+                        <ChevronRightIcon className="h-4 w-4" />
+                    </Button>
                 </div>
             </form>
         </Form>
