@@ -1,39 +1,21 @@
-import './index.css';
-import UserForm from './UserForm';
+import '@/index.css';
+import UserForm from '@/components/UserForm';
 import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
-import Notification from './Notification';
-import MessageComponent from './MessageComponent';
+import { useState } from 'react';
+import Channel from '@/components/Channel';
+import { ThemeProvider } from '@/components/theme-provider';
 
 function App() {
     const [userId, setUserId] = useState<string | null>(Cookies.get('userId') || null);
-    const [notifications, setNotifications] = useState<string[]>([]);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setNotifications([]);
-        }, 3000);
-
-        return () => {
-            clearTimeout(timeout);
-        };
-    }, [notifications, setNotifications]);
-
-    function notify(message: string) {
-        setNotifications([...notifications, message]);
-    }
-
-    if (!userId) {
-        return <UserForm setUserId={setUserId} />;
-    }
 
     return (
-        <div id="container" className="relative flex flex-col text-center p-4 text-white h-dvh">
-            <h1 className="text-2xl md:text-4xl">Message App</h1>
+        <ThemeProvider>
+            <div id="container" className="relative flex flex-col text-center p-4 h-dvh max-w-2xl mx-auto">
+                <h1 className="text-2xl md:text-4xl mb-4">Message App</h1>
 
-            <MessageComponent userId={userId} sendNotification={notify} />
-            <Notification notifications={notifications} />
-        </div>
+                {userId ? <Channel userId={userId} /> : <UserForm setUserId={setUserId} />}
+            </div>
+        </ThemeProvider>
     );
 }
 

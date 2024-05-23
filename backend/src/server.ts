@@ -1,14 +1,25 @@
 import express from 'express';
 import expressWs from 'express-ws';
 import cors from 'cors';
-import { getMessages, insertMessage } from './messages.js';
+import { IMessagesRepository } from './repositories/IMessagesRepository.js';
+import { MessagesSqliteRepository } from './repositories/messagesSqlite.js';
+import sqliteDb from './db.js';
 
+let messagesRepository: IMessagesRepository;
 const wsInstance = expressWs(express());
 const wss = wsInstance.getWss();
 const app = wsInstance.app;
 const port: number = 8000;
 
-const lastMessages = (await getMessages()) || [];
+if (process.env['DB_TYPE'] === 'mongodb') {
+    // TODO: Implement MongoDB repository
+    console.error('MongoDB not implemented yet');
+    process.exit(1);
+} else {
+    messagesRepository = new MessagesSqliteRepository(sqliteDb);
+}
+
+const lastMessages = (await messagesRepository.getMessages()) || [];
 
 app.use(cors());
 
@@ -28,13 +39,13 @@ app.ws('/', (ws) => {
             return;
         }
 
-        const res = await insertMessage(message);
-        if (!res || !res.lastID) {
+        const res = await messagesRepository.insertMessage(message);
+        if (!res || !res.id) {
             console.error('Error inserting message:', message);
             return;
         }
 
-        message.id = res.lastID;
+        message.id = res.id;
 
         if (lastMessages.length >= 50) {
             lastMessages.shift();
