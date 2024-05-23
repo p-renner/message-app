@@ -1,4 +1,4 @@
-import { NetworkError, EmptyMessageError } from './lib/errors';
+import { NetworkError, EmptyMessageError } from '@/lib/errors';
 type messageHandler = (messages: SharedTypes.Message[]) => void;
 
 export default class Socket {

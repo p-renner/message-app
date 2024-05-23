@@ -1,6 +1,6 @@
-import Messages from './Messages';
-import MessageForm from './MessageForm';
-import Socket from './socket';
+import Messages from '@/components/Messages';
+import MessageForm from '@/components/MessageForm';
+import Socket from '@/lib/socket';
 import { useState } from 'react';
 
 interface ChannelProps {

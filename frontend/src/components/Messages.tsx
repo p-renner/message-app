@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ScrollArea } from './components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 function Messages({ messages }: { messages: SharedTypes.Message[] }) {
     const newestMessageRef = useRef<HTMLDivElement>(null);
