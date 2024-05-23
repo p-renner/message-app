@@ -16,7 +16,6 @@ WORKDIR /app
 COPY --from=builder /app/backend/package.json /app/backend/package-lock.json ./
 COPY --from=builder /app/backend/dist/ ./dist/
 
-RUN mkdir -p /app/db
 RUN chown -R node:node /app
 
 USER node
