@@ -4,6 +4,8 @@ import cors from 'cors';
 import { IMessagesRepository } from './repositories/IMessagesRepository.js';
 import { MessagesSqliteRepository } from './repositories/messagesSqlite.js';
 import sqliteDb from './db.js';
+import { broadcastMessage } from './utils/websocket.js';
+import * as ws from 'ws';
 
 let messagesRepository: IMessagesRepository;
 const wsInstance = expressWs(express());
@@ -19,45 +21,34 @@ if (process.env['DB_TYPE'] === 'mongodb') {
     messagesRepository = new MessagesSqliteRepository(sqliteDb);
 }
 
-const lastMessages = (await messagesRepository.getMessages()) || [];
-
 app.use(cors());
 
-wss.on('connection', (ws: WebSocket) => {
-    ws.send(JSON.stringify(lastMessages));
+wss.on('connection', async (ws) => {
+    ws.send(JSON.stringify(await messagesRepository.getMessages()));
     return;
 });
 
-app.ws('/', (ws) => {
+app.ws('/:channel', (ws: ws, req: express.Request) => {
     ws.on('message', async (msg) => {
-        let message: SharedTypes.Message;
-
+        let newMessage: Omit<SharedTypes.Message, 'id'>;
         try {
-            message = JSON.parse(msg.toString());
-        } catch (e) {
-            console.error('Invalid JSON:', msg, e);
-            return;
-        }
-
-        const res = await messagesRepository.insertMessage(message);
-        if (!res || !res.id) {
-            console.error('Error inserting message:', message);
-            return;
-        }
-
-        message.id = res.id;
-
-        if (lastMessages.length >= 50) {
-            lastMessages.shift();
-        }
-        lastMessages.push(message);
-
-        const stringifiedMessage = JSON.stringify(lastMessages);
-        wss.clients.forEach((value) => {
-            if (value.readyState === 1) {
-                value.send(stringifiedMessage);
+            let obj: SharedTypes.WSMessage = JSON.parse(msg.toString());
+            if (!obj.message || !obj.userId) {
+                throw new Error('Invalid message');
             }
+
+            newMessage = { message: obj.message, userId: obj.userId, channel: req.params.channel! };
+        } catch (e) {
+            console.error('Failed to parse message:', e);
+            return;
+        }
+
+        await messagesRepository.insertMessage(newMessage).catch((e) => {
+            console.error('Error inserting message:', e);
+            return false;
         });
+
+        broadcastMessage(wss, JSON.stringify(await messagesRepository.getMessages()));
     });
 });
 

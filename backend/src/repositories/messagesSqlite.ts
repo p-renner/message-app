@@ -19,10 +19,22 @@ export class MessagesSqliteRepository implements IMessagesRepository {
             message.timestamp = new Date().toISOString();
         }
 
+        let channelId = await this.db.get('SELECT id FROM channels WHERE name = ?', [message.channel]);
+
+        if (!channelId) {
+            let res = await this.db.run('INSERT INTO channels (name) VALUES (?)', [message.channel]);
+            channelId = res.lastID;
+        }
+
+        if (!channelId.id) {
+            throw new Error('Failed to create channel ' + message.channel);
+        }
+
         const result = await this.db.run('INSERT INTO messages (userId, message, timestamp) VALUES (?, ?, ?)', [
             message.userId,
             message.message,
             message.timestamp,
+            channelId.id,
         ]);
 
         return { id: result.lastID };

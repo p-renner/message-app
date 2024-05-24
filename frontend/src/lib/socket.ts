@@ -10,16 +10,16 @@ export default class Socket {
         this.messageHandler = messageHandler;
     }
 
-    sendMessage(message: string, userId: string): void | never {
+    sendMessage(message: SharedTypes.WSMessage): void | never {
         if (!this.isConnected() || !this.socket) {
             throw new NetworkError();
         }
 
-        if (!message || message === '') {
+        if (message.message === '') {
             throw new EmptyMessageError();
         }
 
-        this.socket.send(JSON.stringify({ userId: userId, message } as SharedTypes.Message));
+        this.socket.send(JSON.stringify(message));
     }
 
     init(url: string): WebSocket {

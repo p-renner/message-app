@@ -14,7 +14,8 @@ function Channel({ userId }: ChannelProps) {
     );
 
     function onSend(message: string) {
-        socket.sendMessage(message, userId);
+        const wsMessage: SharedTypes.WSMessage = { userId, message };
+        socket.sendMessage(wsMessage);
     }
 
     return (
