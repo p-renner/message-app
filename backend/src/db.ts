@@ -11,15 +11,14 @@ const createMessagesTable = `
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId TEXT NOT NULL,
         message TEXT NOT NULL,
-        channelId INTEGER CONSTRAINT fk_channel_id REFERENCES channels(id),
+        channelName TEXT CONSTRAINT fk_channel_name REFERENCES channels(name),
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 `;
 
 const createChannelsTable = `
     CREATE TABLE IF NOT EXISTS channels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT PRIMARY KEY NOT NULL UNIQUE
     );
 `;
 

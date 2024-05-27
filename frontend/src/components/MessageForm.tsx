@@ -12,10 +12,11 @@ const formSchema = z.object({
 
 interface MessageFormProps {
     onSend: (message: string) => void;
+    disabled?: boolean;
 }
 
 function MessageForm(props: MessageFormProps) {
-    const { onSend } = props;
+    const { onSend, disabled } = props;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -31,9 +32,10 @@ function MessageForm(props: MessageFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full" aria-disabled={disabled}>
                 <div className="flex w-full items-start space-x-2">
                     <FormField
+                        disabled={disabled}
                         control={form.control}
                         name="message"
                         render={({ field }) => (
@@ -46,7 +48,7 @@ function MessageForm(props: MessageFormProps) {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" variant="outline">
+                    <Button type="submit" variant="outline" disabled={disabled}>
                         <ChevronRightIcon className="h-4 w-4" />
                     </Button>
                 </div>

@@ -8,7 +8,7 @@ declare namespace SharedTypes {
         id: number;
         userId: string;
         message: string;
-        channel: string;
+        channelName: string;
         timestamp?: string;
     }
 }

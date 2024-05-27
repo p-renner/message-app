@@ -23,13 +23,26 @@ if (process.env['DB_TYPE'] === 'mongodb') {
 
 app.use(cors());
 
-wss.on('connection', async (ws) => {
-    ws.send(JSON.stringify(await messagesRepository.getMessages()));
-    return;
+wss.on('connection', async (ws: ws, req: express.Request) => {
+    if (!req.params || !req.params.channel) {
+        console.error('Invalid channel');
+        ws.close();
+        return;
+    }
+    const { channel } = req.params;
+
+    ws.send(JSON.stringify(await messagesRepository.getMessages(channel)));
 });
 
 app.ws('/:channel', (ws: ws, req: express.Request) => {
-    ws.on('message', async (msg) => {
+    if (!req.params || !req.params.channel) {
+        console.error('Invalid channel');
+        ws.close();
+        return;
+    }
+    const { channel } = req.params;
+
+    ws.on('message', async (msg: ws.RawData) => {
         let newMessage: Omit<SharedTypes.Message, 'id'>;
         try {
             let obj: SharedTypes.WSMessage = JSON.parse(msg.toString());
@@ -37,7 +50,7 @@ app.ws('/:channel', (ws: ws, req: express.Request) => {
                 throw new Error('Invalid message');
             }
 
-            newMessage = { message: obj.message, userId: obj.userId, channel: req.params.channel! };
+            newMessage = { message: obj.message, userId: obj.userId, channelName: channel };
         } catch (e) {
             console.error('Failed to parse message:', e);
             return;
@@ -48,7 +61,7 @@ app.ws('/:channel', (ws: ws, req: express.Request) => {
             return false;
         });
 
-        broadcastMessage(wss, JSON.stringify(await messagesRepository.getMessages()));
+        broadcastMessage(wss, JSON.stringify(await messagesRepository.getMessages(channel)));
     });
 });
 
