@@ -1,39 +1,17 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import fs from 'fs';
+import { IMessagesRepository } from './repositories/IMessagesRepository.js';
+import { MessagesSqliteRepository } from './repositories/messagesSqlite.js';
+import db from './sqlite.js';
 
-if (!fs.existsSync('db')) {
-    fs.mkdirSync('db');
-}
+function getMessagesRepository(): IMessagesRepository {
+    const dbType = process.env['DB_TYPE'];
 
-const createMessagesTable = `
-    CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId TEXT NOT NULL,
-        message TEXT NOT NULL,
-        channelName TEXT CONSTRAINT fk_channel_name REFERENCES channels(name),
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-`;
-
-const createChannelsTable = `
-    CREATE TABLE IF NOT EXISTS channels (
-        name TEXT PRIMARY KEY NOT NULL UNIQUE
-    );
-`;
-
-async function initDb(): Promise<Database> {
-    try {
-        const db = await open({ driver: sqlite3.Database, filename: 'db/chat.db' });
-        Promise.all([db.exec(createChannelsTable), db.exec(createMessagesTable)]);
-
-        return db;
-    } catch (e) {
-        console.error('Error initializing database:', e);
+    if (dbType === 'mongodb') {
+        // TODO: Implement MongoDB repository
+        console.error('MongoDB not implemented yet');
         process.exit(1);
     }
+
+    return new MessagesSqliteRepository(db);
 }
 
-const db = await initDb();
-
-export default db;
+export default getMessagesRepository();
