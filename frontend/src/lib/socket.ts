@@ -45,7 +45,6 @@ export default class Socket {
 
     onDisconnect(callback: () => void) {
         this.socket.onclose = callback;
-        console.log('onDisconnect');
     }
 
     disconnect(): void {
