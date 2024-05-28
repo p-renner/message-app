@@ -10,24 +10,8 @@ export default class Socket {
         this.messageHandler = messageHandler;
     }
 
-    sendMessage(message: string, userId: string): void | never {
-        if (!this.isConnected() || !this.socket) {
-            throw new NetworkError();
-        }
-
-        if (!message || message === '') {
-            throw new EmptyMessageError();
-        }
-
-        this.socket.send(JSON.stringify({ userId: userId, message } as SharedTypes.Message));
-    }
-
     init(url: string): WebSocket {
         this.socket = new WebSocket(url);
-
-        this.socket.onopen = () => {
-            console.log('Connection established');
-        };
 
         this.socket.onmessage = (event: MessageEvent) => {
             if (!this.messageHandler) {
@@ -41,6 +25,26 @@ export default class Socket {
         };
 
         return this.socket;
+    }
+
+    sendMessage(message: SharedTypes.WSMessage) {
+        if (!this.socket || !this.isConnected()) {
+            throw new NetworkError();
+        }
+
+        if (message.message === '') {
+            throw new EmptyMessageError();
+        }
+
+        this.socket.send(JSON.stringify(message));
+    }
+
+    onConnect(callback: () => void) {
+        this.socket.onopen = callback;
+    }
+
+    onDisconnect(callback: () => void) {
+        this.socket.onclose = callback;
     }
 
     disconnect(): void {
