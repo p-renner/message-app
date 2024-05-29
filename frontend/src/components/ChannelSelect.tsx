@@ -4,14 +4,23 @@ type ChannelSelectProps = {
     onChannelClick: (channel: string) => void;
 };
 
+type Channel = {
+    name: string;
+};
+
 function ChannelSelect(props: ChannelSelectProps) {
     const { onChannelClick } = props;
-    const [channels, setChannels] = useState<string[]>(['test', 'default', 'general', 'random']);
+    const [channels, setChannels] = useState<Channel[]>([]);
 
     useEffect(() => {
-        fetch('/api/channels')
+        console.log(channels);
+    }, [channels]);
+
+    useEffect(() => {
+        const apiUrl = import.meta.env.VITE_API_ADDR || 'https://message-app.rennernet.com';
+        fetch(apiUrl + '/api/channels')
             .then((res) => res.json())
-            .then((data) => setChannels(data.channels))
+            .then((data) => setChannels(data.channels || []))
             .catch(() => console.error('Failed to fetch channels'));
     }, []);
 
@@ -19,11 +28,11 @@ function ChannelSelect(props: ChannelSelectProps) {
         <div className="flex justify-center space-x-4 mb-4">
             {channels.map((channel) => (
                 <button
-                    key={channel}
+                    key={channel.name}
                     className="px-4 py-2 bg-blue-500 text-white rounded-md"
-                    onClick={() => onChannelClick(channel)}
+                    onClick={() => onChannelClick(channel.name)}
                 >
-                    {channel}
+                    {channel.name}
                 </button>
             ))}
         </div>

@@ -61,5 +61,5 @@ function getWebSocketUrl(channel: string = 'default') {
         console.error('Invalid channel name');
     }
 
-    return baseUrl + '/' + path;
+    return baseUrl + '/ws/' + path;
 }
