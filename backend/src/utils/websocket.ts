@@ -1,12 +1,11 @@
-import * as ws from 'ws';
 import messagesRepository from '../db.js';
+import clients from '../clients.js';
 import express from 'express';
+import * as ws from 'ws';
 
-export function broadcastMessage(wss: ws.Server, message: string) {
-    wss.clients.forEach((value) => {
-        if (value.readyState === 1) {
-            value.send(message);
-        }
+export function broadcastMessage(message: string, channel: string) {
+    Array.from(clients.get(channel) || []).forEach((client) => {
+        client.send(message);
     });
 }
 
@@ -19,9 +18,9 @@ export function isValidChannel(ws: ws, req: express.Request): boolean {
     return true;
 }
 
-export async function processData(data: ws.RawData, channel: string, wss: ws.Server) {
+export async function processData(data: ws.RawData, channel: string) {
     await messagesRepository.insertMessage(convertToMessage(data, channel));
-    broadcastMessage(wss, await getMessages(channel));
+    broadcastMessage(await getMessages(channel), channel);
 }
 
 function convertToMessage(data: ws.RawData, channel: string): Omit<SharedTypes.Message, 'id'> {

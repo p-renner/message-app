@@ -13,10 +13,6 @@ function ChannelSelect(props: ChannelSelectProps) {
     const [channels, setChannels] = useState<Channel[]>([]);
 
     useEffect(() => {
-        console.log(channels);
-    }, [channels]);
-
-    useEffect(() => {
         const apiUrl = import.meta.env.VITE_API_ADDR || 'https://message-app.rennernet.com';
         fetch(apiUrl + '/api/channels')
             .then((res) => res.json())
