@@ -3,12 +3,14 @@ import channelRouter from './routes/channel.routes.js';
 import expressWs from 'express-ws';
 import express from 'express';
 import { websocketHandler } from './controllers/ws.controllers.js';
+import bodyParser from 'body-parser';
 
 const wsInstance = expressWs(express());
 const app = wsInstance.app;
 const port = 8000;
 
 app.use(cors());
+app.use(bodyParser.json());
 app.use('/api/channels', channelRouter);
 app.ws('/ws/:channel', (ws, req) => websocketHandler(ws, req));
 

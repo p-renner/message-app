@@ -1,22 +1,29 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronRightIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const formSchema = z.object({
     message: z.string().min(1, { message: 'Message cannot be empty' }).max(255, { message: 'Message is too long' }),
 });
 
 interface MessageFormProps {
-    onSend: (message: string) => void;
+    onSend: (message: string) => Promise<void>;
+    onError: () => void;
     disabled?: boolean;
 }
 
 function MessageForm(props: MessageFormProps) {
-    const { onSend, disabled } = props;
+    const { onSend, onError, disabled } = props;
+    const [isDisabled, setIsDisabled] = useState(disabled);
+
+    useMemo(() => {
+        setIsDisabled(disabled);
+    }, [disabled]);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -25,17 +32,25 @@ function MessageForm(props: MessageFormProps) {
         },
     });
 
-    const handleSubmit = (values: z.infer<typeof formSchema>) => {
-        onSend(values.message);
-        form.reset();
+    const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+        setIsDisabled(true);
+        await onSend(values.message)
+            .then(() => {
+                form.reset();
+                setIsDisabled(false);
+            })
+            .catch(() => {
+                form.setError('message', { message: 'Failed to send message' });
+                onError();
+            });
     };
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full" aria-disabled={disabled}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full" aria-disabled={isDisabled}>
                 <div className="flex w-full items-start space-x-2">
                     <FormField
-                        disabled={disabled}
+                        disabled={isDisabled}
                         control={form.control}
                         name="message"
                         render={({ field }) => (
@@ -48,7 +63,7 @@ function MessageForm(props: MessageFormProps) {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit" variant="outline" disabled={disabled}>
+                    <Button type="submit" variant="outline" disabled={isDisabled}>
                         <ChevronRightIcon className="h-4 w-4" />
                     </Button>
                 </div>

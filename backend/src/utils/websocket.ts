@@ -1,4 +1,4 @@
-import messagesRepository from '../db.js';
+import { messagesRepo } from '../db.js';
 import clients from '../clients.js';
 import express from 'express';
 import * as ws from 'ws';
@@ -19,7 +19,7 @@ export function isValidChannel(ws: ws, req: express.Request): boolean {
 }
 
 export async function processData(data: ws.RawData, channel: string) {
-    await messagesRepository.insertMessage(convertToMessage(data, channel));
+    await messagesRepo.insertMessage(convertToMessage(data, channel));
     broadcastMessage(await getMessages(channel), channel);
 }
 
@@ -34,5 +34,5 @@ function convertToMessage(data: ws.RawData, channel: string): Omit<SharedTypes.M
 }
 
 export async function getMessages(channel: string): Promise<string> {
-    return JSON.stringify(await messagesRepository.getMessages(channel));
+    return JSON.stringify(await messagesRepo.getMessages(channel));
 }

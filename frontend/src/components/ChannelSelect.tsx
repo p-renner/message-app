@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Button } from './ui/button';
 
 type ChannelSelectProps = {
     onChannelClick: (channel: string) => void;
+    active: string;
 };
 
 type Channel = {
@@ -9,7 +11,7 @@ type Channel = {
 };
 
 function ChannelSelect(props: ChannelSelectProps) {
-    const { onChannelClick } = props;
+    const { onChannelClick, active } = props;
     const [channels, setChannels] = useState<Channel[]>([]);
 
     useEffect(() => {
@@ -23,13 +25,13 @@ function ChannelSelect(props: ChannelSelectProps) {
     return (
         <div className="flex justify-center space-x-4 mb-4">
             {channels.map((channel) => (
-                <button
+                <Button
                     key={channel.name}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                    variant={active == channel.name ? 'default' : 'outline'}
                     onClick={() => onChannelClick(channel.name)}
                 >
                     {channel.name}
-                </button>
+                </Button>
             ))}
         </div>
     );

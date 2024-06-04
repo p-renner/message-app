@@ -11,7 +11,7 @@ export class MessagesSqliteRepository implements IMessagesRepository {
         );
     }
 
-    async insertMessage(message: SharedTypes.Message): Promise<{ id: number | undefined }> {
+    async insertMessage(message: SharedTypes.Message): Promise<{ id: string | undefined }> {
         if (!message.timestamp) {
             message.timestamp = new Date().toISOString();
         }
@@ -21,6 +21,6 @@ export class MessagesSqliteRepository implements IMessagesRepository {
             [message.userId, message.message, message.timestamp, message.channelName],
         );
 
-        return { id: result.lastID };
+        return { id: result.lastID?.toString() };
     }
 }

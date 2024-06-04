@@ -36,4 +36,4 @@ async function initDb(): Promise<Database> {
         });
 }
 
-export default await initDb();
+export default initDb;

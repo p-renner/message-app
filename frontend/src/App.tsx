@@ -18,7 +18,7 @@ function App() {
         <ThemeProvider>
             <div id="container" className="relative flex flex-col text-center p-4 h-dvh max-w-2xl mx-auto">
                 <h1 className="text-2xl md:text-4xl mb-4">Message App</h1>
-                <ChannelSelect onChannelClick={onChannelClick} />
+                <ChannelSelect onChannelClick={onChannelClick} active={channel || 'default'} />
 
                 {userId ? <Channel userId={userId} channel={channel} /> : <UserForm setUserId={setUserId} />}
             </div>

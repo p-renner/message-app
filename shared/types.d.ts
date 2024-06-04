@@ -5,7 +5,7 @@ declare namespace SharedTypes {
     }
 
     interface Message {
-        id: number;
+        id: string;
         userId: string;
         message: string;
         channelName: string;

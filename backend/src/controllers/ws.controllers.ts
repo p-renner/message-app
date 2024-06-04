@@ -18,8 +18,8 @@ export const websocketHandler = async (ws: ws, req: express.Request) => {
     ws.send(await getMessages(channel));
 
     ws.on('message', (msg: ws.RawData) => {
-        processData(msg, channel).catch((e: Error) => {
-            console.error('Could not process message:\n', e);
+        processData(msg, channel).catch(() => {
+            console.error('Could not process message');
         });
     });
 

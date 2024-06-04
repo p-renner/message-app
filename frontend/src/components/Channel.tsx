@@ -18,24 +18,28 @@ function Channel({ userId, channel }: ChannelProps) {
 
     useMemo(() => {
         if (socket) {
+            // Connecting to a new channel
             socket.onDisconnect(() => setConnected(undefined));
             socket.disconnect();
-            setSocket(undefined);
         }
         setMessages([]);
 
-        setTimeout(() => setSocket(new Socket(getWebSocketUrl(channel), setMessages)), 300);
+        setTimeout(() => setSocket(new Socket(getWebSocketUrl(channel), setMessages, setConnected)), 300);
     }, [channel]);
 
     useMemo(() => {
         if (!socket) return;
-        socket.onConnect(() => setConnected(true));
         socket.onDisconnect(() => setConnected(false));
     }, [socket]);
 
-    function onSend(message: string) {
+    async function onSend(message: string) {
         const wsMessage: SharedTypes.WSMessage = { userId, message };
-        socket?.sendMessage(wsMessage);
+        await socket?.sendMessage(wsMessage);
+    }
+
+    function onError(): void {
+        console.error('No response from server.');
+        socket?.disconnect();
     }
 
     return (
@@ -47,7 +51,7 @@ function Channel({ userId, channel }: ChannelProps) {
             >
                 <Messages messages={messages} />
             </ScrollArea>
-            <MessageForm onSend={onSend} disabled={!connected} />
+            <MessageForm onSend={onSend} onError={onError} disabled={!connected} />
         </>
     );
 }
