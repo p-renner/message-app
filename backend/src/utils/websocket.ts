@@ -19,20 +19,20 @@ export function isValidChannel(ws: ws, req: express.Request): boolean {
 }
 
 export async function processData(data: ws.RawData, channel: string) {
-    await messagesRepo.insertMessage(convertToMessage(data, channel));
+    await messagesRepo.insert(convertToMessage(data, channel));
     broadcastMessage(await getMessages(channel), channel);
 }
 
-function convertToMessage(data: ws.RawData, channel: string): Omit<SharedTypes.Message, 'id'> {
+function convertToMessage(data: ws.RawData, channel: string): SharedTypes.Message {
     let obj: SharedTypes.WSMessage = JSON.parse(data.toString());
 
     if (!obj.message || !obj.userId) {
         throw new Error('Missing fields');
     }
 
-    return { message: obj.message, userId: obj.userId, channelName: channel };
+    return { id: '', message: obj.message, userId: obj.userId, channelName: channel };
 }
 
 export async function getMessages(channel: string): Promise<string> {
-    return JSON.stringify(await messagesRepo.getMessages(channel));
+    return JSON.stringify(await messagesRepo.get(channel));
 }
