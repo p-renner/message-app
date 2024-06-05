@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import expressWs from 'express-ws';
 import { getChannelsController, createChannelController } from '../controllers/channel.controllers.js';
 
-const router = Router() as expressWs.Router;
+const router = Router();
 
 router.get('/', getChannelsController);
 

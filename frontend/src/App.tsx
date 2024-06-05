@@ -8,7 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 function App() {
     const [userId, setUserId] = useState<string | null>(Cookies.get('userId') || null);
-    const [channel, setChannel] = useState<string | undefined>();
+    const [channel, setChannel] = useState<string>('default');
 
     const onChannelClick = (channel: string) => {
         setChannel(channel);

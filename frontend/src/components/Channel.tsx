@@ -16,20 +16,27 @@ function Channel({ userId, channel }: ChannelProps) {
     const [socket, setSocket] = useState<Socket>();
     const [connected, setConnected] = useState<boolean>();
 
-    useMemo(() => {
+    useMemo(async () => {
+        // Connecting to a new channel
         if (socket) {
-            // Connecting to a new channel
             socket.onDisconnect(() => setConnected(undefined));
             socket.disconnect();
         }
         setMessages([]);
 
-        setTimeout(() => setSocket(new Socket(getWebSocketUrl(channel), setMessages, setConnected)), 300);
+        const messages = await fetchInitialMessages(channel || 'default');
+        if (!messages) return;
+
+        setTimeout(() => {
+            setMessages(messages);
+            setSocket(new Socket(getWebSocketUrl(channel), setMessages));
+        }, 300);
     }, [channel]);
 
     useMemo(() => {
         if (!socket) return;
         socket.onDisconnect(() => setConnected(false));
+        socket.onConnect(() => setConnected(true));
     }, [socket]);
 
     async function onSend(message: string) {
@@ -66,4 +73,12 @@ function getWebSocketUrl(channel: string = 'default') {
     }
 
     return baseUrl + '/ws/' + path;
+}
+
+async function fetchInitialMessages(channel: string): Promise<void | SharedTypes.Message[]> {
+    const apiUrl = import.meta.env.VITE_API_ADDR || 'https://message-app.rennernet.com';
+
+    return fetch(`${apiUrl}/api/messages/${channel}`)
+        .then((res) => res.json() as Promise<SharedTypes.Message[]>)
+        .catch(() => console.error('Failed to fetch messages'));
 }

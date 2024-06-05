@@ -1,14 +1,15 @@
+import { Channel } from '../../models/channels.models.js';
 import { MessagesRepository } from './messages.js';
 import { Db } from 'mongodb';
 
-async function get(db: Db, channel: string): Promise<SharedTypes.Message[]> {
+async function get(db: Db, channel: Channel): Promise<SharedTypes.Message[]> {
     return db
         .collection<SharedTypes.Message>('messages')
-        .find({ channelName: channel })
+        .find({ channelName: channel.name })
         .toArray()
         .catch(() => {
             console.error('Error getting messages. Is the database running?');
-            return [];
+            throw new Error('Could not get messages');
         });
 }
 
@@ -30,7 +31,7 @@ async function insert(db: Db, message: SharedTypes.Message): Promise<{ id: strin
 
 export function getMessagesRepo(db: Db): MessagesRepository {
     return {
-        get: (channel: string) => get(db, channel),
+        get: (channel: Channel) => get(db, channel),
         insert: (message: SharedTypes.Message) => insert(db, message),
     };
 }

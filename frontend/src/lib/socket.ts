@@ -5,35 +5,17 @@ export default class Socket {
     private socket: WebSocket;
     private messageHandler: messageHandler;
 
-    constructor(url: string, messageHandler: messageHandler, setConnected: (connected: boolean) => void) {
-        this.socket = this.init(url, setConnected);
+    constructor(url: string, messageHandler: messageHandler) {
+        this.socket = this.init(url);
         this.messageHandler = messageHandler;
     }
 
-    init(url: string, setConnected: (connected: boolean) => void): WebSocket {
-        let connected = false;
+    init(url: string): WebSocket {
         this.socket = new WebSocket(url);
-
-        // First message recieved is user list
-        this.socket.onmessage = (event: MessageEvent) => {
-            if (!this.messageHandler) {
-                return;
-            }
-            this.messageHandler(JSON.parse(event.data) as SharedTypes.Message[]);
-            setConnected(true);
-            connected = true;
-        };
 
         this.socket.onerror = (error: Event) => {
             console.error('WebSocket error observed:', error);
         };
-
-        setTimeout(() => {
-            // If no response after 5 seconds, assume server is down
-            if (!connected) {
-                this.socket.close();
-            }
-        }, 5000);
 
         return this.socket;
     }

@@ -1,7 +1,9 @@
-import { channelRepo } from '../db.js';
+import { getChannelsRepo } from '../repositories/channels/channels.js';
 export interface Channel {
     name: string;
 }
+
+const channelRepo = getChannelsRepo();
 
 export const getChannels = (): Promise<Channel[]> => {
     return channelRepo.get();

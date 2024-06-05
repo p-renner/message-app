@@ -1,21 +1,16 @@
 import express from 'express';
 import * as ws from 'ws';
-import { getMessages, isValidChannel, processData } from '../utils/websocket.js';
+import { processData } from '../utils/websocket.js';
 import clients from '../clients.js';
 
 export const websocketHandler = async (ws: ws, req: express.Request) => {
-    if (!isValidChannel(ws, req)) {
-        return;
-    }
-    const channel = req.params.channel!;
+    const channel = { name: req.params.channel! };
 
-    if (clients.has(channel)) {
-        clients.get(channel)!.add(ws);
+    if (clients.has(channel.name)) {
+        clients.get(channel.name)!.add(ws);
     } else {
-        clients.set(channel, new Set([ws]));
+        clients.set(channel.name, new Set([ws]));
     }
-
-    ws.send(await getMessages(channel));
 
     ws.on('message', (msg: ws.RawData) => {
         processData(msg, channel).catch(() => {
@@ -24,6 +19,6 @@ export const websocketHandler = async (ws: ws, req: express.Request) => {
     });
 
     ws.on('close', () => {
-        clients.get(channel)!.delete(ws);
+        clients.get(channel.name)!.delete(ws);
     });
 };
