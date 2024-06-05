@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import { getChannelsController, createChannelController } from '../controllers/channel.controllers.js';
+import ChannelController from '../controllers/channel.controllers.js';
 
 const router = Router();
 
-router.get('/', getChannelsController);
-
-router.post('/', createChannelController);
+router.get('/', ChannelController.get);
+router.post('/', ChannelController.create);
 
 export default router;
