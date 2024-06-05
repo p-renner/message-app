@@ -2,7 +2,7 @@ import { Channel } from '../../models/channels.models.js';
 import { Database } from 'sqlite';
 import { getChannelsRepo as getMongoDbRepo } from './channelsMongoDb.js';
 import { getChannelsRepo as getSqliteRepo } from './channelsSqlite.js';
-import { db } from '../../db.js';
+import { Db } from 'mongodb';
 
 export type ChannelsRepository = {
     get: () => Promise<Channel[]>;
@@ -11,7 +11,7 @@ export type ChannelsRepository = {
     //update: (channel: Channel) => Promise<void>;
 };
 
-export function getChannelsRepo(): ChannelsRepository {
+export function getChannelsRepo(db: Database | Db): ChannelsRepository {
     if (db instanceof Database) {
         return getSqliteRepo(db);
     }
