@@ -1,15 +1,16 @@
 import { Channel } from '../../models/channels.models.js';
+import { Message } from '../../models/messages.models.js';
 import { MessagesRepository } from './messages.js';
 import { Database } from 'sqlite';
 
-async function get(db: Database, channel: Channel): Promise<SharedTypes.Message[]> {
-    return db.all<SharedTypes.Message[]>(
+async function get(db: Database, channel: Channel): Promise<Message[]> {
+    return db.all<Message[]>(
         'SELECT * FROM (SELECT * FROM messages WHERE channelName = ? ORDER BY id DESC LIMIT 50) ORDER BY id ASC',
         [channel.name],
     );
 }
 
-async function insert(db: Database, message: SharedTypes.Message): Promise<{ id: string | undefined }> {
+async function insert(db: Database, message: Message): Promise<{ id: string | undefined }> {
     if (!message.timestamp) {
         message.timestamp = new Date().toISOString();
     }
@@ -27,6 +28,6 @@ async function insert(db: Database, message: SharedTypes.Message): Promise<{ id:
 export function getMessagesRepo(db: Database): MessagesRepository {
     return {
         get: (channel: Channel) => get(db, channel),
-        insert: (message: SharedTypes.Message) => insert(db, message),
+        insert: (message: Message) => insert(db, message),
     };
 }

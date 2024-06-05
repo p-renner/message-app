@@ -1,12 +1,13 @@
+import { Db } from 'mongodb';
+import { Database } from 'sqlite';
+import { Channel } from '../../models/channels.models.js';
+import { Message } from '../../models/messages.models.js';
 import { getMessagesRepo as getMongoDbRepo } from './messagesMongoDb.js';
 import { getMessagesRepo as getSqliteRepo } from './messagesSqlite.js';
-import { Channel } from '../../models/channels.models.js';
-import { Database } from 'sqlite';
-import { Db } from 'mongodb';
 
 export type MessagesRepository = {
-    get: (channel: Channel) => Promise<SharedTypes.Message[]>;
-    insert: (message: SharedTypes.Message) => Promise<{ id: string | undefined }>;
+    get: (channel: Channel) => Promise<Message[]>;
+    insert: (message: Message) => Promise<{ id: string | undefined }>;
 };
 
 export function getMessagesRepo(db: Database | Db): MessagesRepository {

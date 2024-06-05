@@ -4,10 +4,15 @@ export interface Channel {
     name: string;
 }
 
-export const getChannels = (): Promise<Channel[]> => {
+const getChannels = (): Promise<Channel[]> => {
     return db.channel.get();
 };
 
-export const createChannel = async (channel: Channel): Promise<boolean> => {
+const createChannel = async (channel: Channel): Promise<boolean> => {
     return db.channel.insert(channel);
+};
+
+export default {
+    get: getChannels,
+    create: createChannel,
 };

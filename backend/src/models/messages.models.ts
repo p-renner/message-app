@@ -1,10 +1,17 @@
 import db from '../db.js';
 import { Channel } from './channels.models.js';
 
-export const getMessages = (channel: Channel): Promise<SharedTypes.Message[]> => {
+export type Message = SharedTypes.Message;
+
+const getMessages = (channel: Channel): Promise<Message[]> => {
     return db.messages.get(channel);
 };
 
-export const insertMessage = async (message: SharedTypes.Message): Promise<{ id: string | undefined }> => {
+const insertMessage = async (message: Message): Promise<{ id: string | undefined }> => {
     return db.messages.insert(message);
+};
+
+export default {
+    get: getMessages,
+    insert: insertMessage,
 };

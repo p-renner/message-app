@@ -1,4 +1,4 @@
-import { getMessages, insertMessage } from '../models/messages.models.js';
+import MessageModel, { Message } from '../models/messages.models.js';
 import { Channel } from '../models/channels.models.js';
 import clients from '../clients.js';
 import * as ws from 'ws';
@@ -10,11 +10,11 @@ export function broadcastMessage(message: string, channel: Channel) {
 }
 
 export async function processData(data: ws.RawData, channel: Channel) {
-    await insertMessage(convertToMessage(data, channel));
+    await MessageModel.insert(convertToMessage(data, channel));
     broadcastMessage(await getMessagesString(channel), channel);
 }
 
-function convertToMessage(data: ws.RawData, channel: Channel): SharedTypes.Message {
+function convertToMessage(data: ws.RawData, channel: Channel): Message {
     let obj: SharedTypes.WSMessage = JSON.parse(data.toString());
 
     if (!obj.message || !obj.userId) {
@@ -25,5 +25,5 @@ function convertToMessage(data: ws.RawData, channel: Channel): SharedTypes.Messa
 }
 
 export async function getMessagesString(channel: Channel): Promise<string> {
-    return JSON.stringify(await getMessages(channel));
+    return JSON.stringify(await MessageModel.get(channel));
 }
