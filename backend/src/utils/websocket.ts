@@ -3,13 +3,13 @@ import { Channel } from '../models/channels.models.js';
 import clients from '../clients.js';
 import * as ws from 'ws';
 
-export function broadcastMessage(message: string, channel: Channel) {
-    Array.from(clients.get(channel.name) || []).forEach((client) => {
+export function broadcastMessage(message: string, channel: Channel): void {
+    Array.from(clients.get(channel) || []).forEach((client) => {
         client.send(message);
     });
 }
 
-export async function processData(data: ws.RawData, channel: Channel) {
+export async function processData(data: ws.RawData, channel: Channel): Promise<void> {
     await MessageModel.insert(convertToMessage(data, channel));
     broadcastMessage(await getMessagesString(channel), channel);
 }

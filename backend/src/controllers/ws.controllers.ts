@@ -1,16 +1,12 @@
 import express from 'express';
 import * as ws from 'ws';
 import { processData } from '../utils/websocket.js';
-import clients from '../clients.js';
+import clients, { addClient } from '../clients.js';
+import { Channel } from '../models/channels.models.js';
 
 export const websocketHandler = async (ws: ws, req: express.Request) => {
-    const channel = { name: req.params.channel! };
-
-    if (clients.has(channel.name)) {
-        clients.get(channel.name)!.add(ws);
-    } else {
-        clients.set(channel.name, new Set([ws]));
-    }
+    const channel = { name: req.params.channel! } as Channel;
+    addClient(channel, ws);
 
     ws.on('message', (msg: ws.RawData) => {
         processData(msg, channel).catch(() => {
@@ -19,6 +15,6 @@ export const websocketHandler = async (ws: ws, req: express.Request) => {
     });
 
     ws.on('close', () => {
-        clients.get(channel.name)!.delete(ws);
+        clients.get(channel)?.delete(ws);
     });
 };
