@@ -1,14 +1,16 @@
-import db from '../db.js';
+import { getRepos } from '../db.js';
 
 export interface Channel {
     name: string;
 }
 
 const getChannels = async (): Promise<Channel[]> => {
-    const channels = await db.channel.get().catch((err) => {
-        console.error(err.message);
-        return null;
-    });
+    const channels = await getRepos()
+        .channels.get()
+        .catch((err) => {
+            console.error(err);
+            return null;
+        });
 
     if (!channels) {
         return [{ name: 'default' }];
@@ -18,10 +20,12 @@ const getChannels = async (): Promise<Channel[]> => {
 };
 
 const createChannel = async (channel: Channel): Promise<void> => {
-    const success = await db.channel.insert(channel).catch((err) => {
-        console.error(err.message);
-        return false;
-    });
+    const success = await getRepos()
+        .channels.insert(channel)
+        .catch((err) => {
+            console.error(err.message);
+            return false;
+        });
 
     if (!success) {
         throw new Error('Could not create channel');

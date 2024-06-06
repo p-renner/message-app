@@ -23,17 +23,25 @@ async function createTables(db: Database) {
     return db;
 }
 
-async function initDb(): Promise<Database> {
+let db: Database | null;
+
+async function connect(): Promise<Database> {
     if (!fs.existsSync('db')) {
         fs.mkdirSync('db');
     }
 
-    return open({ driver: sqlite3.Database, filename: 'db/chat.db' })
+    db = await open({ driver: sqlite3.Database, filename: 'db/chat.db' })
         .then(createTables)
         .catch((e) => {
             console.error('Error initializing database:', e);
             process.exit(1);
         });
+    return db;
 }
 
-export default initDb;
+async function close() {
+    await db?.close();
+    db = null;
+}
+
+export { connect, close };

@@ -1,37 +1,57 @@
 import * as dotenv from 'dotenv';
 import { Db } from 'mongodb';
 import { Database } from 'sqlite';
-import { default as initMongoDb } from './mongodb.js';
-import { default as initSqliteDb } from './sqlite.js';
-import { getChannelsRepo, ChannelsRepository } from './repositories/channels/channels.js';
-import { getMessagesRepo, MessagesRepository } from './repositories/messages/messages.js';
+import { connect as connectMongo, close as closeMongo } from './mongodb.js';
+import { connect as connectSqlite, close as closeSqlite } from './sqlite.js';
+import { MessagesRepository, getMessagesRepo } from './repositories/messages/messages.js';
+import { ChannelsRepository, getChannelsRepo } from './repositories/channels/channels.js';
 
-export type DbWrapper = {
-    db: Db | Database;
-    channel: ChannelsRepository;
-    messages: MessagesRepository;
+export type Repo = {
+    getMessagesRepo: MessagesRepository;
+    getChannelsRepo: ChannelsRepository;
 };
 
 dotenv.config();
-const db = await wrapDb();
 
-async function initDb(dbType: string | undefined): Promise<Db | Database> {
+let db: Db | Database | null = null;
+
+async function connect(dbType: string | undefined): Promise<Db | Database> {
     if (dbType === 'mongodb') {
-        return initMongoDb();
+        db = await connectMongo();
+        return db;
     }
-    return initSqliteDb();
+    db = await connectSqlite();
+    return db;
 }
 
-async function wrapDb(): Promise<DbWrapper> {
-    const db = await initDb(process.env.DB_TYPE);
-    const channel = getChannelsRepo(db);
-    const messages = getMessagesRepo(db);
+async function close(): Promise<void> {
+    if (db instanceof Db) {
+        await closeMongo();
+    } else {
+        await closeSqlite();
+    }
+}
+
+function getDb(): Db | Database {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
+    return db;
+}
+
+export const getRepos = () => {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
 
     return {
-        db: db,
-        channel: channel,
-        messages: messages,
+        messages: getMessagesRepo(db),
+        channels: getChannelsRepo(db),
     };
-}
+};
 
-export default db;
+export default {
+    connect,
+    close,
+    getDb,
+};

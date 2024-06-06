@@ -10,14 +10,17 @@ async function createIndexes(db: Db) {
     await messages.createIndex({ channelId: 1 });
 }
 
-async function initDb() {
+let client: MongoClient | null;
+let db: Db | null;
+
+async function connect(): Promise<Db> {
     const uri = 'mongodb://localhost:27017/';
-    let client: MongoClient;
 
     try {
         console.log('Connecting to MongoDB...');
         client = await MongoClient.connect(uri);
-        createIndexes(client.db('messageapp'));
+        db = client.db('messageapp');
+        createIndexes(db);
         console.log('Connected to MongoDB');
     } catch (e) {
         console.error('Could not connect to MongoDB');
@@ -33,7 +36,13 @@ async function initDb() {
         console.error('Connection to MongoDB timed out');
     });
 
-    return client.db('messageapp');
+    return db;
 }
 
-export default initDb;
+async function close() {
+    await client?.close();
+    client = null;
+    db = null;
+}
+
+export { connect, close };
