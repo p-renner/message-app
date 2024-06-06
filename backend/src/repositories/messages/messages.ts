@@ -10,9 +10,9 @@ export type MessagesRepository = {
     insert: (message: Message) => Promise<{ id: string | undefined }>;
 };
 
-export function getMessagesRepo(db: Database | Db): MessagesRepository {
+export async function getMessagesRepo(db: Database | Db): Promise<MessagesRepository> {
     if (db instanceof Database) {
-        return getSqliteRepo(db);
+        return await getSqliteRepo(db);
     }
-    return getMongoDbRepo(db);
+    return await getMongoDbRepo(db);
 }

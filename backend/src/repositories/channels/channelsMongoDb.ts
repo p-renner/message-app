@@ -15,7 +15,7 @@ async function insertChannel(db: Db, channel: Channel): Promise<boolean> {
         });
 }
 
-export function getChannelsRepo(db: Db): ChannelsRepository {
+export async function getChannelsRepo(db: Db): Promise<ChannelsRepository> {
     return {
         get: () => getChannels(db),
         insert: (channel: Channel) => insertChannel(db, channel),

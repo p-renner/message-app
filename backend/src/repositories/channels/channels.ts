@@ -11,7 +11,7 @@ export type ChannelsRepository = {
     //update: (channel: Channel) => Promise<void>;
 };
 
-export function getChannelsRepo(db: Db | Database): ChannelsRepository {
+export async function getChannelsRepo(db: Db | Database): Promise<ChannelsRepository> {
     if (db instanceof Database) {
         return getSqliteRepo(db);
     }

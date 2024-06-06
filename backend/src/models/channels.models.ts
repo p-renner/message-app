@@ -5,27 +5,25 @@ export interface Channel {
 }
 
 const getChannels = async (): Promise<Channel[]> => {
-    const channels = await getRepos()
-        .channels.get()
-        .catch((err) => {
-            console.error(err);
-            return null;
-        });
+    const channels = await getRepos().then((repos) => repos.channels);
+    const res = await channels.get().catch((err) => {
+        console.error('Error getting channel:', err.message);
+        return null;
+    });
 
-    if (!channels) {
+    if (!res) {
         return [{ name: 'default' }];
     }
 
-    return channels;
+    return res;
 };
 
 const createChannel = async (channel: Channel): Promise<void> => {
-    const success = await getRepos()
-        .channels.insert(channel)
-        .catch((err) => {
-            console.error(err.message);
-            return false;
-        });
+    const channels = await getRepos().then((repos) => repos.channels);
+    const success = await channels.insert(channel).catch((err) => {
+        console.error('Error inserting channel:', err.message);
+        return false;
+    });
 
     if (!success) {
         throw new Error('Could not create channel');

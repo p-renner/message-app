@@ -3,12 +3,14 @@ import { Channel } from './channels.models.js';
 
 export type Message = SharedTypes.Message;
 
-const get = (channel: Channel): Promise<Message[]> => {
-    return getRepos().messages.get(channel);
+const get = async (channel: Channel): Promise<Message[]> => {
+    const messages = await getRepos().then((repos) => repos.messages);
+    return messages.get(channel);
 };
 
 const insert = async (message: Message): Promise<{ id: string | undefined }> => {
-    return getRepos().messages.insert(message);
+    const messages = await getRepos().then((repos) => repos.messages);
+    return messages.insert(message);
 };
 
 export default {

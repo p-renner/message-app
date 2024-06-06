@@ -1,4 +1,3 @@
-import * as dotenv from 'dotenv';
 import { Db } from 'mongodb';
 import { Database } from 'sqlite';
 import { connect as connectMongo, close as closeMongo } from './mongodb.js';
@@ -7,20 +6,14 @@ import { MessagesRepository, getMessagesRepo } from './repositories/messages/mes
 import { ChannelsRepository, getChannelsRepo } from './repositories/channels/channels.js';
 
 export type Repo = {
-    getMessagesRepo: MessagesRepository;
-    getChannelsRepo: ChannelsRepository;
+    messages: MessagesRepository;
+    channels: ChannelsRepository;
 };
-
-dotenv.config();
 
 let db: Db | Database | null = null;
 
 async function connect(dbType: string | undefined): Promise<Db | Database> {
-    if (dbType === 'mongodb') {
-        db = await connectMongo();
-        return db;
-    }
-    db = await connectSqlite();
+    db = dbType === 'mongodb' ? await connectMongo() : await connectSqlite();
     return db;
 }
 
@@ -30,6 +23,7 @@ async function close(): Promise<void> {
     } else {
         await closeSqlite();
     }
+    db = null;
 }
 
 function getDb(): Db | Database {
@@ -39,14 +33,14 @@ function getDb(): Db | Database {
     return db;
 }
 
-export const getRepos = () => {
+export const getRepos = async (): Promise<Repo> => {
     if (!db) {
         throw new Error('Database not connected');
     }
 
     return {
-        messages: getMessagesRepo(db),
-        channels: getChannelsRepo(db),
+        messages: await getMessagesRepo(db),
+        channels: await getChannelsRepo(db),
     };
 };
 

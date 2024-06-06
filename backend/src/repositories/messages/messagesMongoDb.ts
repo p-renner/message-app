@@ -30,7 +30,7 @@ async function insert(db: Db, message: Message): Promise<{ id: string | undefine
     return { id: result.insertedId?.inspect() };
 }
 
-export function getMessagesRepo(db: Db): MessagesRepository {
+export async function getMessagesRepo(db: Db): Promise<MessagesRepository> {
     return {
         get: (channel: Channel) => get(db, channel),
         insert: (message: Message) => insert(db, message),

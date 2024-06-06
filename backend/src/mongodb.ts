@@ -2,7 +2,7 @@ import { Db, MongoClient } from 'mongodb';
 import { Message } from './models/messages.models';
 import { Channel } from './models/channels.models';
 
-async function createIndexes(db: Db) {
+async function createIndexes(db: Db): Promise<void> {
     const channels = db.collection<Channel>('channels');
     await channels.createIndex({ name: 1 }, { unique: true });
 
@@ -20,7 +20,7 @@ async function connect(): Promise<Db> {
         console.log('Connecting to MongoDB...');
         client = await MongoClient.connect(uri);
         db = client.db('messageapp');
-        createIndexes(db);
+        await createIndexes(db);
         console.log('Connected to MongoDB');
     } catch (e) {
         console.error('Could not connect to MongoDB');

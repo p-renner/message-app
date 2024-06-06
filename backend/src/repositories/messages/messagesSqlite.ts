@@ -4,7 +4,7 @@ import { MessagesRepository } from './messages.js';
 import { Database } from 'sqlite';
 
 async function get(db: Database, channel: Channel): Promise<Message[]> {
-    return db.all<Message[]>(
+    return await db.all<Message[]>(
         'SELECT * FROM (SELECT * FROM messages WHERE channelName = ? ORDER BY id DESC LIMIT 50) ORDER BY id ASC',
         [channel.name],
     );
@@ -25,7 +25,7 @@ async function insert(db: Database, message: Message): Promise<{ id: string | un
     return { id: result.lastID?.toString() };
 }
 
-export function getMessagesRepo(db: Database): MessagesRepository {
+export async function getMessagesRepo(db: Database): Promise<MessagesRepository> {
     return {
         get: (channel: Channel) => get(db, channel),
         insert: (message: Message) => insert(db, message),
