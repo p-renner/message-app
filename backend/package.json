@@ -39,7 +39,6 @@
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
-        "express-chat": "link:",
         "express-ws": "^5.0.2",
         "mongodb": "~6.7.0",
         "sqlite": "^5.1.1",
