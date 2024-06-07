@@ -12,8 +12,5 @@
         "lint": "npm run lint-be && npm run lint-fe",
         "lint-be": "eslint \"./backend/**/*.ts\"",
         "lint-fe": "eslint \"./frontend/**/*.ts\""
-    },
-    "dependencies": {
-        "express-chat": "link:"
     }
 }
