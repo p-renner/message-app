@@ -6,10 +6,7 @@ export interface Channel {
 
 const getChannels = async (): Promise<Channel[]> => {
     const channels = await getRepos().then((repos) => repos.channels);
-    const res = await channels.get().catch((err) => {
-        console.error('Error getting channel:', err.message);
-        return null;
-    });
+    const res = await channels.get();
 
     if (!res) {
         return [{ name: 'default' }];

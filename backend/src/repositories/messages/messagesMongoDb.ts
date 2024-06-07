@@ -21,11 +21,7 @@ async function get(db: Db, channel: Channel): Promise<Message[]> {
                         channelName: doc.channelName,
                     }) as Message,
             ),
-        )
-        .catch(() => {
-            console.error('Error getting messages. Is the database running?');
-            throw new Error('Could not get messages');
-        });
+        );
 }
 
 async function insert(db: Db, message: Message): Promise<{ id: string | undefined }> {
