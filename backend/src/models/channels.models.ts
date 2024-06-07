@@ -1,33 +1,18 @@
-import { getRepos } from '../db.js';
+import { getChannelsRepo } from '../db.js';
 
 export interface Channel {
     name: string;
 }
 
-const getChannels = async (): Promise<Channel[]> => {
-    const channels = await getRepos().then((repos) => repos.channels);
-    const res = await channels.get();
-
-    if (!res) {
-        return [{ name: 'default' }];
-    }
-
-    return res;
+const get = async (): Promise<Channel[]> => {
+    return await getChannelsRepo().then((channels) => channels.get() || [{ name: 'default' }]);
 };
 
-const createChannel = async (channel: Channel): Promise<void> => {
-    const channels = await getRepos().then((repos) => repos.channels);
-    const success = await channels.insert(channel).catch((err) => {
-        console.error('Error inserting channel:', err.message);
-        return false;
-    });
-
-    if (!success) {
-        throw new Error('Could not create channel');
-    }
+const create = async (channel: Channel): Promise<boolean> => {
+    return await getChannelsRepo().then((channels) => channels.insert(channel));
 };
 
 export default {
-    get: getChannels,
-    create: createChannel,
+    get,
+    create,
 };

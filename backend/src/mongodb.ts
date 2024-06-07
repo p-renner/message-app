@@ -1,17 +1,12 @@
 import { Db, MongoClient } from 'mongodb';
 import { Message } from './models/messages.models';
 import { Channel } from './models/channels.models';
+import { getChannelsRepo } from './repositories/channels/channelsMongoDb.js';
+import { getMessagesRepo } from './repositories/messages/messagesMongoDb.js';
 import dotenv from 'dotenv';
+import { DbWrapper } from './db';
 
 dotenv.config();
-
-async function createIndexes(db: Db): Promise<void> {
-    const channels = db.collection<Channel>('channels');
-    await channels.createIndex({ name: 1 }, { unique: true });
-
-    const messages = db.collection<Message>('messages');
-    await messages.createIndex({ channelId: 1 });
-}
 
 let client: MongoClient | null;
 let db: Db | null;
@@ -30,8 +25,7 @@ async function connect(): Promise<Db> {
         await createIndexes(db);
         console.log('Connected to MongoDB');
     } catch (e) {
-        console.error('Could not connect to MongoDB');
-        process.exit(1);
+        throw new Error('Error initializing database:' + e);
     }
 
     client.on('close', () => {
@@ -46,10 +40,33 @@ async function connect(): Promise<Db> {
     return db;
 }
 
+async function createIndexes(db: Db): Promise<void> {
+    const channels = db.collection<Channel>('channels');
+    await channels.createIndex({ name: 1 }, { unique: true });
+
+    const messages = db.collection<Message>('messages');
+    await messages.createIndex({ channelId: 1 });
+}
+
 async function close() {
     await client?.close();
     client = null;
     db = null;
 }
 
-export { connect, close };
+function getDb(): Db {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
+    return db;
+}
+
+export function initMongo(): DbWrapper<Db> {
+    return {
+        connect,
+        close,
+        getDb,
+        getChannelsRepo: () => getChannelsRepo(getDb()),
+        getMessagesRepo: () => getMessagesRepo(getDb()),
+    };
+}

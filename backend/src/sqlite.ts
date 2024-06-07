@@ -2,8 +2,13 @@ import fs from 'fs';
 import { Database, open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import dotenv from 'dotenv';
+import { DbWrapper } from './db';
+import { getChannelsRepo } from './repositories/channels/channelsSqlite';
+import { getMessagesRepo } from './repositories/messages/messagesSqlite';
 
 dotenv.config();
+
+let db: Database | null;
 
 const getMessagesTableSchema = () => `
     CREATE TABLE IF NOT EXISTS messages (
@@ -26,8 +31,6 @@ async function createTables(db: Database) {
     return db;
 }
 
-let db: Database | null;
-
 async function connect(): Promise<Database> {
     const { DB_PATH } = process.env;
 
@@ -42,9 +45,8 @@ async function connect(): Promise<Database> {
 
     db = await open({ driver: sqlite3.Database, filename: `${DB_PATH}` })
         .then(createTables)
-        .catch((e) => {
-            console.error('Error initializing database:', e);
-            process.exit(1);
+        .catch((e: Error) => {
+            throw new Error('Error initializing database:' + e);
         });
     return db;
 }
@@ -54,4 +56,19 @@ async function close() {
     db = null;
 }
 
-export { connect, close };
+function getDb(): Database {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
+    return db;
+}
+
+export function initSqlite(): DbWrapper<Database> {
+    return {
+        connect,
+        close,
+        getDb,
+        getMessagesRepo: () => getMessagesRepo(getDb()),
+        getChannelsRepo: () => getChannelsRepo(getDb()),
+    };
+}

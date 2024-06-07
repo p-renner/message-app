@@ -1,51 +1,51 @@
 import { Db } from 'mongodb';
 import { Database } from 'sqlite';
-import { connect as connectMongo, close as closeMongo } from './mongodb.js';
-import { connect as connectSqlite, close as closeSqlite } from './sqlite.js';
-import { MessagesRepository, getMessagesRepo } from './repositories/messages/messages.js';
-import { ChannelsRepository, getChannelsRepo } from './repositories/channels/channels.js';
+import { initMongo } from './mongodb.js';
+import { initSqlite } from './sqlite.js';
+import { MessagesRepository } from './repositories/messages/messages.js';
+import type { ChannelsRepository } from './repositories/channels/channels';
 
-export type Repo = {
-    messages: MessagesRepository;
-    channels: ChannelsRepository;
+export type DbWrapper<T> = {
+    connect: () => Promise<T>;
+    close: () => Promise<void>;
+    getDb: () => T;
+    getChannelsRepo: () => Promise<ChannelsRepository>;
+    getMessagesRepo: () => Promise<MessagesRepository>;
 };
 
-let db: Db | Database | null = null;
+let dbWrapper: DbWrapper<Database> | DbWrapper<Db>;
 
-async function connect(dbType?: string): Promise<Db | Database> {
-    db = dbType === 'mongodb' ? await connectMongo() : await connectSqlite();
-    return db;
+export async function connect(dbType?: string): Promise<Db | Database> {
+    dbWrapper = dbType === 'mongodb' ? initMongo() : initSqlite();
+    return dbWrapper.connect();
 }
 
-async function close(): Promise<void> {
-    if (db instanceof Db) {
-        await closeMongo();
-    } else {
-        await closeSqlite();
+export async function close(): Promise<void> {
+    if (dbWrapper) {
+        await dbWrapper.close();
     }
-    db = null;
 }
 
-function getDb(): Db | Database {
-    if (!db) {
-        throw new Error('Database not connected');
-    }
-    return db;
-}
-
-export const getRepos = async (): Promise<Repo> => {
-    if (!db) {
+export function getDb(): Db | Database {
+    if (!dbWrapper) {
         throw new Error('Database not connected');
     }
 
-    return {
-        messages: await getMessagesRepo(db),
-        channels: await getChannelsRepo(db),
-    };
-};
+    return dbWrapper.getDb();
+}
+
+export async function getChannelsRepo(): Promise<ChannelsRepository> {
+    return dbWrapper.getChannelsRepo();
+}
+
+export async function getMessagesRepo(): Promise<MessagesRepository> {
+    return dbWrapper.getMessagesRepo();
+}
 
 export default {
     connect,
     close,
     getDb,
+    getChannelsRepo,
+    getMessagesRepo,
 };
