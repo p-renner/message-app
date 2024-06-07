@@ -1,8 +1,14 @@
 declare namespace SharedTypes {
-    interface Message {
-        id: number;
+    interface WSMessage {
         userId: string;
         message: string;
+    }
+
+    interface Message {
+        id: string;
+        userId: string;
+        message: string;
+        channelName: string;
         timestamp?: string;
     }
 }

@@ -10,37 +10,47 @@ export default class Socket {
         this.messageHandler = messageHandler;
     }
 
-    sendMessage(message: string, userId: string): void | never {
-        if (!this.isConnected() || !this.socket) {
-            throw new NetworkError();
-        }
-
-        if (!message || message === '') {
-            throw new EmptyMessageError();
-        }
-
-        this.socket.send(JSON.stringify({ userId: userId, message } as SharedTypes.Message));
-    }
-
     init(url: string): WebSocket {
         this.socket = new WebSocket(url);
-
-        this.socket.onopen = () => {
-            console.log('Connection established');
-        };
-
-        this.socket.onmessage = (event: MessageEvent) => {
-            if (!this.messageHandler) {
-                return;
-            }
-            this.messageHandler(JSON.parse(event.data) as SharedTypes.Message[]);
-        };
 
         this.socket.onerror = (error: Event) => {
             console.error('WebSocket error observed:', error);
         };
 
         return this.socket;
+    }
+
+    async sendMessage(message: SharedTypes.WSMessage) {
+        if (!this.socket || !this.isConnected()) {
+            throw new NetworkError();
+        }
+
+        if (message.message === '') {
+            throw new EmptyMessageError();
+        }
+
+        this.socket.send(JSON.stringify(message));
+
+        // Wait for response from server
+        return new Promise((resolve, reject) => {
+            this.socket.onmessage = (event: MessageEvent) => {
+                this.messageHandler(JSON.parse(event.data) as SharedTypes.Message[]);
+                resolve(event.data);
+            };
+
+            // Reject if no response after 5 seconds
+            setTimeout(() => {
+                reject(new Error('No response from server'));
+            }, 5000);
+        });
+    }
+
+    onConnect(callback: () => void) {
+        this.socket.onopen = callback;
+    }
+
+    onDisconnect(callback: () => void) {
+        this.socket.onclose = callback;
     }
 
     disconnect(): void {

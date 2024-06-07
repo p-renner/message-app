@@ -1,31 +1,51 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
-import fs from 'fs';
+import { Db } from 'mongodb';
+import { Database } from 'sqlite';
+import { connect as connectMongo, close as closeMongo } from './mongodb.js';
+import { connect as connectSqlite, close as closeSqlite } from './sqlite.js';
+import { MessagesRepository, getMessagesRepo } from './repositories/messages/messages.js';
+import { ChannelsRepository, getChannelsRepo } from './repositories/channels/channels.js';
 
-if (!fs.existsSync('db')) {
-    fs.mkdirSync('db');
+export type Repo = {
+    messages: MessagesRepository;
+    channels: ChannelsRepository;
+};
+
+let db: Db | Database | null = null;
+
+async function connect(dbType?: string): Promise<Db | Database> {
+    db = dbType === 'mongodb' ? await connectMongo() : await connectSqlite();
+    return db;
 }
 
-const createMessagesTable = `
-    CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId TEXT NOT NULL,
-        message TEXT NOT NULL,
-        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-`;
-
-async function initDb(): Promise<Database> {
-    try {
-        const db = await open({ driver: sqlite3.Database, filename: 'db/chat.db' });
-        await db.exec(createMessagesTable);
-        return db;
-    } catch (e) {
-        console.error('Error initializing database:', e);
-        process.exit(1);
+async function close(): Promise<void> {
+    if (db instanceof Db) {
+        await closeMongo();
+    } else {
+        await closeSqlite();
     }
+    db = null;
 }
 
-const db = await initDb();
+function getDb(): Db | Database {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
+    return db;
+}
 
-export default db;
+export const getRepos = async (): Promise<Repo> => {
+    if (!db) {
+        throw new Error('Database not connected');
+    }
+
+    return {
+        messages: await getMessagesRepo(db),
+        channels: await getChannelsRepo(db),
+    };
+};
+
+export default {
+    connect,
+    close,
+    getDb,
+};
