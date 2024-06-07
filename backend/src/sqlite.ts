@@ -35,8 +35,9 @@ async function connect(): Promise<Database> {
         throw new Error('DB_PATH environment variables must be set');
     }
 
-    if (!fs.existsSync(DB_PATH) && DB_PATH !== ':memory:') {
-        fs.mkdirSync(DB_PATH);
+    const path = DB_PATH.split('/').slice(0, -1).join('/');
+    if (!fs.existsSync(path) && DB_PATH !== ':memory:') {
+        fs.mkdirSync(path);
     }
 
     db = await open({ driver: sqlite3.Database, filename: `${DB_PATH}` })
