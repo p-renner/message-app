@@ -17,6 +17,8 @@ app.use(bodyParser.json());
 app.use('/api', logMiddleware, errorMiddleware);
 app.use('/api/channels', channelRouter);
 app.use('/api/messages', messageRouter);
+
+app.get('/ws', (_, res) => res.status(404).send('Not Found'));
 app.ws('/ws/:channel', validateChannelWs, websocketHandler);
 
 export default app;

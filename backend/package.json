@@ -32,6 +32,7 @@
         "typescript": "^5.4.5"
     },
     "dependencies": {
+        "@jest/globals": "^29.7.0",
         "@types/supertest": "^6.0.2",
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
@@ -41,6 +42,7 @@
         "express-ws": "^5.0.2",
         "mongodb": "6.7",
         "sqlite": "^5.1.1",
-        "sqlite3": "^5.1.7"
+        "sqlite3": "^5.1.7",
+        "ws": "^8.17.0"
     }
 }

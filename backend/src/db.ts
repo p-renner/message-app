@@ -12,7 +12,7 @@ export type Repo = {
 
 let db: Db | Database | null = null;
 
-async function connect(dbType: string | undefined): Promise<Db | Database> {
+async function connect(dbType?: string): Promise<Db | Database> {
     db = dbType === 'mongodb' ? await connectMongo() : await connectSqlite();
     return db;
 }
