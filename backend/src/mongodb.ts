@@ -1,6 +1,9 @@
 import { Db, MongoClient } from 'mongodb';
 import { Message } from './models/messages.models';
 import { Channel } from './models/channels.models';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function createIndexes(db: Db): Promise<void> {
     const channels = db.collection<Channel>('channels');
@@ -14,11 +17,15 @@ let client: MongoClient | null;
 let db: Db | null;
 
 async function connect(): Promise<Db> {
-    const uri = 'mongodb://localhost:27017/';
+    const { DB_PATH } = process.env;
+
+    if (!DB_PATH) {
+        throw new Error('DB_PATH environment variables must be set');
+    }
 
     try {
         console.log('Connecting to MongoDB...');
-        client = await MongoClient.connect(uri);
+        client = await MongoClient.connect(DB_PATH);
         db = client.db('messageapp');
         await createIndexes(db);
         console.log('Connected to MongoDB');

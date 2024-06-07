@@ -1,10 +1,10 @@
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import db from '../db';
 import { insertData, getMessagesString } from './websocket';
 
 describe('Test websocket utils on sqlite', () => {
-    process.env.DB_PATH = ':memory:';
-
     beforeAll(async () => {
+        process.env.DB_PATH = ':memory:';
         await db.connect();
     });
 
@@ -69,12 +69,19 @@ describe('Test websocket utils on sqlite', () => {
 });
 
 describe('Test websocket utils on mongodb', () => {
+    let mongod: MongoMemoryServer;
+
     beforeAll(async () => {
+        mongod = await MongoMemoryServer.create();
+        process.env.DB_PATH = mongod.getUri();
+
         await db.connect('mongodb');
     });
 
-    afterAll(() => {
-        db.close();
+    afterAll(async () => {
+        console.log('Closing the database');
+        await db.close();
+        await mongod.stop();
     });
 
     test('should return id', async () => {

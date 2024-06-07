@@ -1,19 +1,16 @@
 import request from 'supertest';
 import app from '../app';
 import db from '../db';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 describe('Test the channel routes for sqlite', () => {
-    beforeAll((done) => {
+    beforeAll(async () => {
         process.env.DB_PATH = ':memory:';
-        db.connect().then(() => {
-            done();
-        });
+        await db.connect();
     });
 
-    afterAll((done) => {
-        db.close().then(() => {
-            done();
-        });
+    afterAll(() => {
+        db.close();
     });
 
     test('should return 200', async () => {
@@ -43,16 +40,19 @@ describe('Test the channel routes for sqlite', () => {
 });
 
 describe('Test the channel routes for mongodb', () => {
-    beforeAll((done) => {
-        db.connect('mongodb').then(() => {
-            done();
-        });
+    let mongod: MongoMemoryServer;
+
+    beforeAll(async () => {
+        mongod = await MongoMemoryServer.create();
+        process.env.DB_PATH = mongod.getUri();
+
+        await db.connect('mongodb');
     });
 
-    afterAll((done) => {
-        db.close().then(() => {
-            done();
-        });
+    afterAll(async () => {
+        console.log('Closing the database');
+        await db.close();
+        await mongod.stop();
     });
 
     test('should return 200', async () => {

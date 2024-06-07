@@ -1,14 +1,20 @@
 import db, { getRepos } from './db.js';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 describe('MongoDb', () => {
+    let mongod: MongoMemoryServer;
+
     beforeAll(async () => {
-        console.log('Connecting to the database');
+        mongod = await MongoMemoryServer.create();
+        process.env.DB_PATH = mongod.getUri();
+
         await db.connect('mongodb');
     });
 
     afterAll(async () => {
         console.log('Closing the database');
         await db.close();
+        await mongod.stop();
     });
 
     it('should connect to the database', () => {
@@ -24,12 +30,10 @@ describe('MongoDb', () => {
 });
 
 describe('Sqlite', () => {
-    process.env.DB_TYPE = 'sqlite';
-    process.env.DB_PATH = ':memory:';
-
     beforeAll(async () => {
         console.log('Connecting to the database');
-        await db.connect(process.env.DB_TYPE);
+        process.env.DB_PATH = ':memory:';
+        await db.connect();
     });
 
     afterAll(async () => {

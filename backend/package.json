@@ -29,7 +29,8 @@
         "ts-jest": "^29.1.4",
         "ts-node": "^10.9.2",
         "tsx": "^4.11.0",
-        "typescript": "^5.4.5"
+        "typescript": "^5.4.5",
+        "mongodb-memory-server": "^9.3.0"
     },
     "dependencies": {
         "@jest/globals": "^29.7.0",
