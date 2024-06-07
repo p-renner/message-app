@@ -1,8 +1,11 @@
 import { Db, MongoClient } from 'mongodb';
 import { Message } from './models/messages.models';
 import { Channel } from './models/channels.models';
+import dotenv from 'dotenv';
 
-async function createIndexes(db: Db) {
+dotenv.config();
+
+async function createIndexes(db: Db): Promise<void> {
     const channels = db.collection<Channel>('channels');
     await channels.createIndex({ name: 1 }, { unique: true });
 
@@ -10,14 +13,21 @@ async function createIndexes(db: Db) {
     await messages.createIndex({ channelId: 1 });
 }
 
-async function initDb() {
-    const uri = 'mongodb://localhost:27017/';
-    let client: MongoClient;
+let client: MongoClient | null;
+let db: Db | null;
+
+async function connect(): Promise<Db> {
+    const { DB_PATH } = process.env;
+
+    if (!DB_PATH) {
+        throw new Error('DB_PATH environment variables must be set');
+    }
 
     try {
         console.log('Connecting to MongoDB...');
-        client = await MongoClient.connect(uri);
-        createIndexes(client.db('messageapp'));
+        client = await MongoClient.connect(DB_PATH);
+        db = client.db('messageapp');
+        await createIndexes(db);
         console.log('Connected to MongoDB');
     } catch (e) {
         console.error('Could not connect to MongoDB');
@@ -33,7 +43,13 @@ async function initDb() {
         console.error('Connection to MongoDB timed out');
     });
 
-    return client.db('messageapp');
+    return db;
 }
 
-export default initDb;
+async function close() {
+    await client?.close();
+    client = null;
+    db = null;
+}
+
+export { connect, close };

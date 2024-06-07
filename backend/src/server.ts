@@ -1,34 +1,28 @@
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import express, { Request, Response } from 'express';
-import expressWs from 'express-ws';
-import { websocketHandler } from './controllers/ws.controllers.js';
-import { validateChannelWs } from './middleware/messagesMiddleware.js';
-import channelRouter from './routes/channel.routes.js';
-import messageRouter from './routes/message.routes.js';
-
-const wsInstance = expressWs(express());
-const app = wsInstance.app;
+import app from './app.js';
+import db from './db.js';
 const port = 8000;
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use('/api', logMiddleware, errorMiddleware);
-app.use('/api/channels', channelRouter);
-app.use('/api/messages', messageRouter);
-app.ws('/ws/:channel', validateChannelWs, websocketHandler);
+await db.connect(process.env.DB_TYPE);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-function logMiddleware(req: Request, _: Response, next: () => void) {
-    console.log('Request received', req.method, req.url);
-    next();
+function gracefulShutdown() {
+    console.log('Received kill signal, shutting down gracefully');
+    db.close().then(() => {
+        console.log('Closed out database connections');
+        server.close(() => {
+            console.log('Closed out remaining connections');
+            process.exit(0);
+        });
+    });
 }
 
-function errorMiddleware(err: Error, _: Request, res: Response, next: () => void) {
-    console.error(err);
-    res.status(500).send('Something went wrong');
-    next();
-}
+process.on('SIGTERM', () => {
+    gracefulShutdown();
+});
+
+process.on('SIGINT', () => {
+    gracefulShutdown();
+});

@@ -3,11 +3,31 @@ import { Message } from '../../models/messages.models.js';
 import { MessagesRepository } from './messages.js';
 import { Database } from 'sqlite';
 
+type MessageRow = {
+    id: number;
+    userId: string;
+    message: string;
+    timestamp: string;
+    channelName: string;
+};
+
 async function get(db: Database, channel: Channel): Promise<Message[]> {
-    return db.all<Message[]>(
-        'SELECT * FROM (SELECT * FROM messages WHERE channelName = ? ORDER BY id DESC LIMIT 50) ORDER BY id ASC',
-        [channel.name],
-    );
+    return await db
+        .all<
+            MessageRow[]
+        >('SELECT * FROM (SELECT * FROM messages WHERE channelName = ? ORDER BY id DESC LIMIT 50) ORDER BY id ASC', [channel.name])
+        .then((rows) =>
+            rows.map(
+                (row) =>
+                    ({
+                        id: row.id.toString(),
+                        userId: row.userId,
+                        message: row.message,
+                        timestamp: row.timestamp,
+                        channelName: row.channelName,
+                    }) as Message,
+            ),
+        );
 }
 
 async function insert(db: Database, message: Message): Promise<{ id: string | undefined }> {
@@ -25,7 +45,7 @@ async function insert(db: Database, message: Message): Promise<{ id: string | un
     return { id: result.lastID?.toString() };
 }
 
-export function getMessagesRepo(db: Database): MessagesRepository {
+export async function getMessagesRepo(db: Database): Promise<MessagesRepository> {
     return {
         get: (channel: Channel) => get(db, channel),
         insert: (message: Message) => insert(db, message),

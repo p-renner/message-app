@@ -11,7 +11,7 @@ async function insert(db: Database, channel: Channel): Promise<boolean> {
     return result.lastID !== undefined;
 }
 
-export function getChannelsRepo(db: Database): ChannelsRepository {
+export async function getChannelsRepo(db: Database): Promise<ChannelsRepository> {
     return {
         get: () => get(db),
         insert: (message: Channel) => insert(db, message),

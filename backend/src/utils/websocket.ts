@@ -9,9 +9,10 @@ export function broadcastMessage(message: string, channel: Channel): void {
     });
 }
 
-export async function processData(data: ws.RawData, channel: Channel): Promise<void> {
-    await MessageModel.insert(convertToMessage(data, channel));
-    broadcastMessage(await getMessagesString(channel), channel);
+export async function insertData(data: ws.RawData, channel: Channel): Promise<{ id: string | undefined }> {
+    return await MessageModel.insert(convertToMessage(data, channel)).catch(() => {
+        throw new Error('Could not insert message, is the database running?');
+    });
 }
 
 function convertToMessage(data: ws.RawData, channel: Channel): Message {
