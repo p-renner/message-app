@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { ChannelsRepository } from './channels.js';
+import type { ChannelsRepository } from './channels';
 import { Channel } from '../../models/channels.models.js';
 
 async function getChannels(db: Db): Promise<Channel[]> {

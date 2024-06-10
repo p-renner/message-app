@@ -1,4 +1,4 @@
-import db, { getRepos } from './db.js';
+import db from './db.js';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 describe('MongoDb', () => {
@@ -17,16 +17,7 @@ describe('MongoDb', () => {
         await mongod.stop();
     });
 
-    it('should connect to the database', () => {
-        expect(db.getDb()).toBeTruthy();
-    });
-
-    it('should get the repositories', () => {
-        return expect(getRepos()).resolves.toMatchObject({
-            messages: expect.any(Object),
-            channels: expect.any(Object),
-        });
-    });
+    testAll();
 });
 
 describe('Sqlite', () => {
@@ -41,24 +32,39 @@ describe('Sqlite', () => {
         await db.close();
     });
 
-    it('should connect to the database', () => {
-        expect(db.getDb()).toBeTruthy();
-    });
-
-    it('should get the repositories', () => {
-        return expect(getRepos()).resolves.toMatchObject({
-            messages: expect.any(Object),
-            channels: expect.any(Object),
-        });
-    });
+    testAll();
 });
 
 describe('No db', () => {
     test('should throw an error when getting the repositories', async () => {
-        expect(getRepos).rejects.toThrow('Database not connected');
+        expect(db.getMessagesRepo()).rejects.toThrow('Database not connected');
+    });
+
+    test('should throw an error when getting the repositories', async () => {
+        expect(db.getMessagesRepo()).rejects.toThrow('Database not connected');
     });
 
     it('should throw an error when getting the database', () => {
-        expect(db.getDb).toThrow('Database not connected');
+        expect(db.getDb).toThrow();
     });
 });
+
+function testAll() {
+    it('should connect to the database', () => {
+        expect(db.getDb).toBeTruthy();
+    });
+
+    it('should get the message repo', () => {
+        return expect(db.getMessagesRepo()).resolves.toMatchObject({
+            get: expect.any(Function),
+            insert: expect.any(Function),
+        });
+    });
+
+    it('should get the channels repo', () => {
+        return expect(db.getChannelsRepo()).resolves.toMatchObject({
+            get: expect.any(Function),
+            insert: expect.any(Function),
+        });
+    });
+}

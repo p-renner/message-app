@@ -1,12 +1,12 @@
 import MessageModel, { Message } from '../models/messages.models.js';
 import { Channel } from '../models/channels.models.js';
-import clients from '../clients.js';
+import { getClients } from '../clients.js';
 import * as ws from 'ws';
 
 export function broadcastMessage(message: string, channel: Channel): void {
-    Array.from(clients.get(channel) || []).forEach((client) => {
+    for (const client of getClients(channel.name)) {
         client.send(message);
-    });
+    }
 }
 
 export async function insertData(data: ws.RawData, channel: Channel): Promise<{ id: string | undefined }> {
