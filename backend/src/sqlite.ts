@@ -3,8 +3,8 @@ import { Database, open } from 'sqlite';
 import sqlite3 from 'sqlite3';
 import dotenv from 'dotenv';
 import { DbWrapper } from './db';
-import { getChannelsRepo } from './repositories/channels/channelsSqlite';
-import { getMessagesRepo } from './repositories/messages/messagesSqlite';
+import { getChannelsRepo } from './repositories/channels/channelsSqlite.js';
+import { getMessagesRepo } from './repositories/messages/messagesSqlite.js';
 
 dotenv.config();
 
