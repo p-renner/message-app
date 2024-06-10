@@ -1,7 +1,7 @@
 {
     "name": "express-chat",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.0.1",
     "type": "module",
     "scripts": {
         "dev": "nodemon --watch './**/*.ts' --exec 'tsx' src/server.ts",
