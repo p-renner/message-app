@@ -1,12 +1,14 @@
 import express from 'express';
 import * as ws from 'ws';
 import { broadcastMessage, getMessagesString, insertData } from '../utils/websocket.js';
-import { addClient, deleteClient } from '../clients.js';
+import { createChannelManager } from '../clients.js';
 import { Channel } from '../models/channels.models.js';
+
+const channelManager = createChannelManager();
 
 export const websocketHandler = async (ws: ws, req: express.Request) => {
     const channel = { name: req.params.channel! } as Channel;
-    addClient(channel.name, ws);
+    channelManager.addClient(channel.name, ws);
 
     ws.on('message', async (msg: ws.RawData) => {
         await insertData(msg, channel).catch((e) => {
@@ -14,11 +16,11 @@ export const websocketHandler = async (ws: ws, req: express.Request) => {
         });
 
         getMessagesString(channel).then((messages) => {
-            broadcastMessage(messages, channel);
+            broadcastMessage(messages, channelManager.getClients(channel.name));
         });
     });
 
     ws.on('close', () => {
-        deleteClient(channel.name, ws);
+        channelManager.deleteClient(channel.name, ws);
     });
 };
