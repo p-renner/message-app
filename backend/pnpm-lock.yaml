@@ -59,6 +59,9 @@ importers:
             '@types/jest':
                 specifier: ^29.5.14
                 version: 29.5.14
+            '@types/semver':
+                specifier: ^7.7.1
+                version: 7.7.1
             '@types/sqlite3':
                 specifier: ^3.1.11
                 version: 3.1.11
@@ -1007,6 +1010,12 @@ packages:
         resolution:
             {
                 integrity: sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==,
+            }
+
+    '@types/semver@7.7.1':
+        resolution:
+            {
+                integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==,
             }
 
     '@types/send@0.17.6':
@@ -6321,6 +6330,8 @@ snapshots:
     '@types/qs@6.14.0': {}
 
     '@types/range-parser@1.2.7': {}
+
+    '@types/semver@7.7.1': {}
 
     '@types/send@0.17.6':
         dependencies:

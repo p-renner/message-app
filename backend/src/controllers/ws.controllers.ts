@@ -1,8 +1,8 @@
 import express from 'express';
-import * as ws from 'ws';
 import { broadcastMessage, getMessagesString, insertData } from '../utils/websocket.js';
 import { createChannelManager } from '../clients.js';
 import { Channel } from '../models/channels.models.js';
+import ws from 'ws';
 
 const channelManager = createChannelManager();
 
