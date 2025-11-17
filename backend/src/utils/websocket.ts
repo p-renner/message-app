@@ -1,6 +1,6 @@
 import MessageModel, { Message } from '../models/messages.models.js';
 import { Channel } from '../models/channels.models.js';
-import * as ws from 'ws';
+import ws from 'ws';
 
 export function broadcastMessage(message: string, clients: Iterable<ws>): void {
     for (const client of clients) {
